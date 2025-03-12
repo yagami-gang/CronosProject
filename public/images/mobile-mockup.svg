@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 600">
+    <!-- Phone Frame -->
+    <rect x="20" y="10" width="260" height="580" rx="30" fill="#1a1a1a"/>
+    <rect x="25" y="15" width="250" height="570" rx="28" fill="#ffffff"/>
+    
+    <!-- Screen Content -->
+    <rect x="35" y="25" width="230" height="550" rx="20" fill="#f3f4f6"/>
+    
+    <!-- App Header -->
+    <rect x="35" y="25" width="230" height="60" rx="20" fill="#3B82F6"/>
+    <circle cx="65" cy="55" r="15" fill="white"/>
+    <rect x="90" y="45" width="100" height="8" rx="4" fill="white"/>
+    <rect x="90" y="58" width="60" height="6" rx="3" fill="white" opacity="0.8"/>
+    
+    <!-- Flight Card -->
+    <rect x="45" y="95" width="210" height="100" rx="10" fill="white"/>
+    <rect x="55" y="110" width="120" height="12" rx="2" fill="#374151"/>
+    <rect x="55" y="130" width="80" height="8" rx="2" fill="#6B7280"/>
+    <rect x="55" y="145" width="100" height="8" rx="2" fill="#6B7280"/>
+    <rect x="55" y="165" width="60" height="20" rx="4" fill="#3B82F6"/>
+    
+    <!-- Second Flight Card -->
+    <rect x="45" y="205" width="210" height="100" rx="10" fill="white"/>
+    <rect x="55" y="220" width="120" height="12" rx="2" fill="#374151"/>
+    <rect x="55" y="240" width="80" height="8" rx="2" fill="#6B7280"/>
+    <rect x="55" y="255" width="100" height="8" rx="2" fill="#6B7280"/>
+    <rect x="55" y="275" width="60" height="20" rx="4" fill="#3B82F6"/>
+    
+    <!-- Bottom Navigation -->
+    <rect x="35" y="535" width="230" height="40" rx="20" fill="white"/>
+    <circle cx="75" cy="555" r="10" fill="#3B82F6"/>
+    <circle cx="150" cy="555" r="10" fill="#9CA3AF"/>
+    <circle cx="225" cy="555" r="10" fill="#9CA3AF"/>
+    
+    <!-- Phone Details -->
+    <rect x="110" y="30" width="80" height="5" rx="2.5" fill="#1a1a1a"/>
+    <circle cx="150" cy="570" r="15" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+</svg>

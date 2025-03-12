@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 600">
+    <!-- Phone Frame with shadows -->
+    <defs>
+        <linearGradient id="frameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2d2d2d"/>
+            <stop offset="100%" style="stop-color:#1a1a1a"/>
+        </linearGradient>
+        <filter id="shadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+        </filter>
+        <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f8fafc"/>
+            <stop offset="100%" style="stop-color:#f1f5f9"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Phone outer frame with gradient -->
+    <rect x="20" y="10" width="260" height="580" rx="30" fill="url(#frameGradient)" filter="url(#shadow)"/>
+    
+    <!-- Inner frame with subtle shadow -->
+    <rect x="25" y="15" width="250" height="570" rx="28" fill="#ffffff" filter="url(#shadow)"/>
+    
+    <!-- Screen with subtle gradient -->
+    <rect x="35" y="25" width="230" height="550" rx="20" fill="url(#screenGradient)"/>
+    
+    <!-- Status Bar -->
+    <rect x="35" y="25" width="230" height="30" rx="20" fill="#1a1a1a"/>
+    <text x="45" y="45" font-family="Arial" font-size="12" fill="white">9:41</text>
+    <!-- Battery Icon -->
+    <rect x="235" y="33" width="20" height="12" rx="2" stroke="white" fill="none"/>
+    <rect x="237" y="35" width="16" height="8" rx="1" fill="white"/>
+    <!-- Signal Bars -->
+    <rect x="200" y="35" width="4" height="8" rx="1" fill="white"/>
+    <rect x="206" y="33" width="4" height="10" rx="1" fill="white"/>
+    <rect x="212" y="31" width="4" height="12" rx="1" fill="white"/>
+    <!-- WiFi Icon -->
+    <path d="M220,35 Q225,30 230,35 M222,38 Q225,35 228,38 M224,41 Q225,40 226,41" stroke="white" fill="none" stroke-width="1"/>
+    
+    <!-- App Header with LuxeAir branding -->
+    <rect x="35" y="60" width="230" height="70" rx="0" fill="#3B82F6"/>
+    <text x="45" y="95" font-family="Arial" font-weight="bold" font-size="20" fill="white">Cronos</text>
+    <circle cx="235" cy="90" r="15" fill="white" fill-opacity="0.2"/>
+    <circle cx="235" cy="90" r="8" fill="white"/>
+    
+    <!-- Search Bar with Shadow -->
+    <rect x="45" y="140" width="210" height="45" rx="10" fill="white" filter="url(#shadow)"/>
+    <text x="65" y="168" font-family="Arial" font-size="14" fill="#6B7280">🔍 Rechercher un vol...</text>
+    
+    <!-- Featured Flight Card -->
+    <g transform="translate(45, 195)">
+        <rect width="210" height="140" rx="15" fill="white" filter="url(#shadow)"/>
+        <!-- Airline Logo and Title -->
+        <circle cx="30" cy="30" r="20" fill="#3B82F6"/>
+        <text x="19" y="35" font-family="Arial" font-weight="bold" font-size="16" fill="white">LA</text>
+        <text x="65" y="35" font-family="Arial" font-weight="bold" font-size="16" fill="#1a1a1a">Paris → New York</text>
+        <!-- Flight Details -->
+        <line x1="30" y1="60" x2="180" y2="60" stroke="#e5e7eb" stroke-width="1"/>
+        <text x="30" y="80" font-family="Arial" font-size="14" fill="#6B7280">LX 456 • Vol direct</text>
+        <text x="30" y="100" font-family="Arial" font-size="14" fill="#6B7280">Mar 15 Mars • 8h20</text>
+        <!-- Price Tag - Moved to left -->
+        <rect x="30" y="110" width="80" height="20" rx="10" fill="#3B82F6" fill-opacity="0.1"/>
+        <text x="45" y="125" font-family="Arial" font-weight="bold" font-size="14" fill="#3B82F6">599 €</text>
+        <!-- Book Button - Moved to right -->
+        <rect x="120" y="110" width="80" height="20" rx="10" fill="#3B82F6"/>
+        <text x="129" y="125" font-family="Arial" font-size="14" fill="white">Réserver</text>
+    </g>
+
+    <!-- Second Flight Card -->
+    <g transform="translate(45, 345)">
+        <rect width="210" height="140" rx="15" fill="white" filter="url(#shadow)"/>
+        <!-- Airline Logo and Title -->
+        <circle cx="30" cy="30" r="20" fill="#3B82F6"/>
+        <text x="19" y="35" font-family="Arial" font-weight="bold" font-size="16" fill="white">LA</text>
+        <text x="65" y="35" font-family="Arial" font-weight="bold" font-size="16" fill="#1a1a1a">Dubai → Paris</text>
+        <!-- Flight Details -->
+        <line x1="30" y1="60" x2="180" y2="60" stroke="#e5e7eb" stroke-width="1"/>
+        <text x="30" y="80" font-family="Arial" font-size="14" fill="#6B7280">LX 789 • 1 escale</text>
+        <text x="30" y="100" font-family="Arial" font-size="14" fill="#6B7280">Jeu 17 Mars • 6h45</text>
+        <!-- Price Tag - Moved to left -->
+        <rect x="30" y="110" width="80" height="20" rx="10" fill="#3B82F6" fill-opacity="0.1"/>
+        <text x="45" y="125" font-family="Arial" font-weight="bold" font-size="14" fill="#3B82F6">489 €</text>
+        <!-- Book Button - Moved to right -->
+        <rect x="120" y="110" width="80" height="20" rx="10" fill="#3B82F6"/>
+        <text x="129" y="125" font-family="Arial" font-size="14" fill="white">Réserver</text>
+    </g>
+
+    <!-- Bottom Navigation Bar -->
+    <rect x="35" y="535" width="230" height="40" rx="20" fill="white" filter="url(#shadow)"/>
+    <!-- Home Icon (Active) -->
+    <g transform="translate(50, 540)">
+        <rect x="0" y="0" width="30" height="30" rx="8" fill="#3B82F6"/>
+        <path d="M8,15 L15,8 L22,15 L22,22 L17,22 L17,17 L13,17 L13,22 L8,22 Z" fill="white"/>
+    </g>
+    <!-- Search Icon -->
+    <g transform="translate(135, 545)">
+        <circle cx="10" cy="10" r="7" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+        <line x1="15" y1="15" x2="19" y2="19" stroke="#9CA3AF" stroke-width="2"/>
+    </g>
+    <!-- Profile Icon -->
+    <g transform="translate(210, 545)">
+        <circle cx="10" cy="8" r="5" fill="#9CA3AF"/>
+        <path d="M2,20 C2,15 6,12 10,12 C14,12 18,15 18,20" stroke="#9CA3AF" stroke-width="2" fill="none"/>
+    </g>
+
+    <!-- Dynamic Island -->
+    <rect x="110" y="15" width="80" height="20" rx="10" fill="#1a1a1a"/>
+    
+    <!-- Home Indicator -->
+    <rect x="120" y="570" width="60" height="4" rx="2" fill="#1a1a1a" opacity="0.3"/>
+</svg>
