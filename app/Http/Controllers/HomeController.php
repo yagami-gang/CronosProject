@@ -32,7 +32,6 @@ class HomeController extends Controller
             return redirect()->route('gestionnaire.dashboard');
         } else {
             return redirect()->route('home');
-        ;
-        
+        }
     }
 }
