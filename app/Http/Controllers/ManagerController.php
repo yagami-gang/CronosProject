@@ -50,7 +50,7 @@ class ManagerController extends Controller
     {
         $validated = $request->validate([
             'numero_vol' => 'required|string|max:10|unique:flights,flight_number',
-            'ville_depart' => 'required|string|max:255',
+            'ville_depart_id' => 'required|exists:destinations,id',
             'destination_id' => 'required|exists:destinations,id',
             'heure_depart' => 'required|date',
             'heure_arrivee' => 'required|date|after:heure_depart',
@@ -62,7 +62,7 @@ class ManagerController extends Controller
         // Mapper les noms de champs du formulaire aux noms de colonnes de la base de données
         $flightData = [
             'flight_number' => $validated['numero_vol'],
-            'departure' => $validated['ville_depart'],
+            'ville_depart_id' => $validated['ville_depart_id'],
             'destination_id' => $validated['destination_id'],
             'departure_time' => $validated['heure_depart'],
             'arrival_time' => $validated['heure_arrivee'],
@@ -88,7 +88,7 @@ class ManagerController extends Controller
     {
         $validated = $request->validate([
             'numero_vol' => 'required|string|max:10|unique:flights,flight_number,' . $flight->id,
-            'ville_depart' => 'required|string|max:255',
+            'ville_depart_id' => 'required|exists:destinations,id',
             'destination_id' => 'required|exists:destinations,id',
             'heure_depart' => 'required|date',
             'heure_arrivee' => 'required|date|after:heure_depart',
@@ -100,7 +100,7 @@ class ManagerController extends Controller
         // Mapper les noms de champs du formulaire aux noms de colonnes de la base de données
         $flightData = [
             'flight_number' => $validated['numero_vol'],
-            'departure' => $validated['ville_depart'],
+            'ville_depart_id' => $validated['ville_depart_id'],
             'destination_id' => $validated['destination_id'],
             'departure_time' => $validated['heure_depart'],
             'arrival_time' => $validated['heure_arrivee'],
@@ -109,8 +109,16 @@ class ManagerController extends Controller
             'status' => $validated['statut'],
         ];
 
+        // Ne pas modifier le nombre de sièges disponibles si la capacité n'a pas changé
+        if ($flight->total_seats != $validated['capacite']) {
+            $seatsReserved = $flight->total_seats - $flight->available_seats;
+            $flightData['available_seats'] = $validated['capacite'] - $seatsReserved;
+        }
+
         $flight->update($flightData);
-        return redirect()->route('manager.flights.index')->with('success', 'Vol mis à jour avec succès');
+        
+        return redirect()->route('manager.flights.index')
+            ->with('success', 'Vol mis à jour avec succès');
     }
     public function flightsDestroy(Flight $flight)
     {
@@ -178,7 +186,6 @@ class ManagerController extends Controller
        }
     public function destinationsStore(Request $request)
     {
-         
         $validated = $request->validate([
             'ville' => 'required|string|max:255',
             'pays' => 'required|string|max:2',
@@ -186,18 +193,26 @@ class ManagerController extends Controller
             'timezone' => 'required|string',
             'description' => 'required|string',
             'image_url' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'status' => 'required|in:planifié,confirmé,annulé',
+            'statut' => 'required|in:actif,inactif',
+            'populaire' => 'nullable|boolean',
+            'duree_sejour' => 'nullable|string|max:255',
+            'date_depart' => 'nullable|date',
+            'prix_a_partir_de' => 'nullable|numeric|min:0',
+            'note' => 'nullable|numeric|min:0|max:5',
         ]);
-
+    
+        // Traiter le champ populaire (checkbox)
+        $validated['populaire'] = $request->has('populaire');
+    
         if ($request->hasFile('image_url')) {
             $image = $request->file('image_url');
             $filename = Str::slug($request->ville) . '-' . time() . '.' . $image->getClientOriginalExtension();
             $path = $image->storeAs('public/destinations', $filename);
             $validated['image_url'] = $filename;
         }
-
+    
         Destination::create($validated);
-
+    
         return redirect()
             ->route('manager.destinations.index')
             ->with('success', 'Destination ajoutée avec succès');

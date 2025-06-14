@@ -13,16 +13,22 @@
     <!-- Search Form Section -->
     <div class="max-w-7xl mx-auto px-4 -mt-10">
         <div class="bg-white rounded-2xl shadow-2xl p-8 mb-12">
-            <form action="{{ route('flights.search') }}" method="GET" class="space-y-6">
+            <form action="{{ route('flights.search') }}" method="GET" class="space-y-6" id="search-form">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="space-y-2">
                         <label for="departure" class="block text-sm font-semibold text-gray-700">
                             <i class="fas fa-plane-departure text-blue-600 mr-2"></i>Ville de départ
                         </label>
                         <div class="relative">
-                            <input type="text" name="departure" id="departure" value="{{ request('departure') ?? '' }}" 
-                                   class="block w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                   placeholder="Ex: Douala">
+                            <select name="departure" id="departure" 
+                                   class="block w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Sélectionnez une ville</option>
+                                @foreach(\App\Models\Destination::orderBy('ville')->get() as $destination)
+                                    <option value="{{ $destination->id }}" {{ request('departure') == $destination->id ? 'selected' : '' }}>
+                                        {{ $destination->ville }} ({{ $destination->code_aeroport }})
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <i class="fas fa-map-marker-alt text-gray-400"></i>
                             </div>
@@ -34,9 +40,15 @@
                             <i class="fas fa-plane-arrival text-blue-600 mr-2"></i>Destination
                         </label>
                         <div class="relative">
-                            <input type="text" name="destination" id="destination" value="{{ request('destination') ?? '' }}"
-                                   class="block w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                   placeholder="Ex: Yaoundé">
+                            <select name="destination" id="destination"
+                                   class="block w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Sélectionnez une ville</option>
+                                @foreach(\App\Models\Destination::orderBy('ville')->get() as $destination)
+                                    <option value="{{ $destination->id }}" {{ request('destination') == $destination->id ? 'selected' : '' }}>
+                                        {{ $destination->ville }} ({{ $destination->code_aeroport }})
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <i class="fas fa-map-marker-alt text-gray-400"></i>
                             </div>
@@ -78,7 +90,7 @@
         </div>
 
         <!-- Results Section -->
-        <div class="space-y-6 mb-12">
+        <div class="space-y-6 mb-12" id="search-results">
             @forelse ($flights ?? [] as $flight)
                 <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <div class="p-6">
@@ -198,118 +210,61 @@
     </div>
 </div>
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-@endpush
-
+<!-- Add AJAX Search Script -->
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function showReservationConfirmation(flightId, destination, price) {
-        Swal.fire({
-            title: 'Réservation rapide',
-            html: `
-                <div class="text-left">
-                    <p class="mb-3"><strong>Destination:</strong> ${destination}</p>
-                    <p class="mb-3"><strong>Prix:</strong> ${price.toLocaleString('fr-FR')} FCFA</p>
-                    <div class="form-group mb-3">
-                        <label for="passengers" class="form-label">Nombre de passagers:</label>
-                        <select id="passengers" class="form-control">
-                            <option value="1">1 passager</option>
-                            <option value="2">2 passagers</option>
-                            <option value="3">3 passagers</option>
-                            <option value="4">4 passagers</option>
-                            <option value="5">5 passagers</option>
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="travel_date" class="form-label">Date de voyage:</label>
-                        <input type="date" id="travel_date" class="form-control" min="${getTomorrowDate()}">
-                    </div>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Confirmer la réservation',
-            cancelButtonText: 'Annuler',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            preConfirm: () => {
-                const passengers = document.getElementById('passengers').value;
-                const travelDate = document.getElementById('travel_date').value;
-                
-                if (!travelDate) {
-                    Swal.showValidationMessage('Veuillez sélectionner une date de voyage');
-                    return false;
-                }
-                
-                return { passengers, travelDate };
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Afficher un indicateur de chargement
-                Swal.fire({
-                    title: 'Traitement en cours...',
-                    html: 'Veuillez patienter pendant que nous traitons votre réservation',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Envoyer les données au serveur
-                fetch('{{ route("reservations.quick-store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        flight_id: flightId,
-                        passengers_count: result.value.passengers,
-                        travel_date: result.value.travelDate,
-                        price_paid: price * result.value.passengers,
-                        seat_number: result.value.passengers, // Random seat number between 1-100
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Réservation confirmée!',
-                            text: data.message,
-                            confirmButtonText: 'Voir mes réservations',
-                            showCancelButton: true,
-                            cancelButtonText: 'Continuer mes recherches'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = '{{ route("reservations.index") }}';
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erreur',
-                            text: data.message || 'Une erreur est survenue lors de la réservation.'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erreur',
-                        text: 'Une erreur est survenue lors de la communication avec le serveur.'
-                    });
-                });
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('search-form');
+        const resultsContainer = document.getElementById('search-results');
+        const inputs = ['departure', 'destination', 'date', 'price_max'];
+        
+        // Add event listeners to all form inputs
+        inputs.forEach(inputId => {
+            const element = document.getElementById(inputId);
+            element.addEventListener('change', performSearch);
         });
-    }
-    function getTomorrowDate() {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow.toISOString().split('T')[0];
-    }
+        
+        // Prevent default form submission and use AJAX instead
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+        
+        function performSearch() {
+            // Show loading indicator
+            resultsContainer.innerHTML = '<div class="flex justify-center py-12"><i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i></div>';
+            
+            // Get form data
+            const formData = new FormData(form);
+            const searchParams = new URLSearchParams(formData);
+            
+            // Fetch results
+            fetch(`${form.action}?${searchParams.toString()}&ajax=1`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                resultsContainer.innerHTML = html;
+                
+                // Update URL with search parameters without reloading the page
+                const url = new URL(window.location);
+                for (const [key, value] of formData.entries()) {
+                    if (value) {
+                        url.searchParams.set(key, value);
+                    } else {
+                        url.searchParams.delete(key);
+                    }
+                }
+                window.history.pushState({}, '', url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultsContainer.innerHTML = '<div class="bg-red-100 p-4 rounded-lg text-red-700">Une erreur est survenue lors de la recherche. Veuillez réessayer.</div>';
+            });
+        }
+    });
 </script>
 @endpush
 @endsection

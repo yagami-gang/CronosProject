@@ -47,13 +47,20 @@
 
                             <div class="col-md-4 mb-4">
                                 <div class="form-group">
-                                    <label for="ville_depart" class="form-label fw-bold">Ville de départ <span class="text-danger">*</span></label>
+                                    <label for="ville_depart_id" class="form-label fw-bold">Ville de départ <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-primary text-white"><i class="fas fa-map-marker-alt"></i></span>
-                                        <input type="text" class="form-control @error('ville_depart') is-invalid @enderror" 
-                                               id="ville_depart" name="ville_depart" required 
-                                               value="{{ old('ville_depart', $flight->departure) }}">
-                                        @error('ville_depart')
+                                        <select class="form-select @error('ville_depart_id') is-invalid @enderror" 
+                                                id="ville_depart_id" name="ville_depart_id" required>
+                                            <option value="">Sélectionner une ville de départ</option>
+                                            @foreach($destinations as $destination)
+                                                <option value="{{ $destination->id }}" 
+                                                        {{ old('ville_depart_id', $flight->ville_depart_id) == $destination->id ? 'selected' : '' }}>
+                                                    {{ $destination->ville }}, {{ $destination->pays }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('ville_depart_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

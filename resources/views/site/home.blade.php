@@ -224,7 +224,6 @@
         class="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg opacity-0 invisible transform translate-y-8 transition-all duration-300 hover:bg-blue-700 focus:outline-none z-50">
     <i class="fas fa-arrow-up"></i>
 </button>
-
 @push('scripts')
     <script>
         // Gestion du bouton retour en haut

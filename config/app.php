@@ -209,7 +209,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'ExampleClass' => App\Example\ExampleClass::class,
+        'cors' => App\Http\Middleware\Cors::class,
     ])->toArray(),
 
 ];

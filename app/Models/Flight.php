@@ -11,21 +11,27 @@ class Flight extends Model
 
     protected $fillable = [
         'flight_number',
-        'departure',
+        'ville_depart_id',
         'destination_id',
-        'destination',
         'departure_time',
         'arrival_time',
         'price',
         'total_seats',
         'available_seats',
-        'status'
+        'status',
+        'duree_sejour',
+        'date_depart',
+        'prix_a_partir_de',
+        'note'
     ];
 
     protected $casts = [
         'departure_time' => 'datetime',
         'arrival_time' => 'datetime',
-        'price' => 'decimal:2'
+        'price' => 'decimal:2',
+        'date_depart' => 'date',
+        'prix_a_partir_de' => 'decimal:2',
+        'note' => 'decimal:1'
     ];
 
     public function reservations()

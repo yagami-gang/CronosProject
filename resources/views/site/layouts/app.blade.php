@@ -9,13 +9,64 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%234338ca' d='M50 0a50 50 0 1 0 0 100A50 50 0 0 0 50 0zm0 20a30 30 0 1 1 0 60 30 30 0 0 1 0-60z'/></svg>">
     
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        @if (app()->environment('development'))
+        <script src="https://cdn.tailwindcss.com"></script>
+        @else
+            <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        @endif
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Particles.js -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <!-- Tailwind CSS -->
     @stack('styles')
+    <style>
+        /* Chat Widget Styles */
+        #chat-toggle {
+            transition: transform 0.3s ease;
+        }
+    
+        #chat-toggle.rotate-90 {
+            transform: rotate(90deg);
+        }
+    
+        #chat-window {
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    
+        #chat-messages {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+    
+        #chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+    
+        #chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    
+        #chat-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+        }
+    
+        .chat-message {
+            margin-bottom: 1rem;
+        }
+    
+        .chat-message.user {
+            text-align: right;
+        }
+    
+        .typing-indicator {
+            display: inline-block;
+        }
+            
+    </style>   
 </head>
 <body class="font-sans antialiased">
     <!-- Header -->
@@ -214,6 +265,103 @@
             });
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatToggle = document.getElementById('chat-toggle');
+            const chatWindow = document.getElementById('chat-window');
+            const chatClose = document.getElementById('chat-close');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Toggle chat window
+            chatToggle.addEventListener('click', function() {
+                chatWindow.classList.toggle('hidden');
+                chatToggle.classList.toggle('rotate-90');
+            });
+            
+            // Close chat window
+            chatClose.addEventListener('click', function() {
+                chatWindow.classList.add('hidden');
+                chatToggle.classList.remove('rotate-90');
+            });
+            
+            // Send message
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage(message, 'user');
+                chatInput.value = '';
+                
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'chat-message bot typing-indicator';
+                typingIndicator.innerHTML = `
+                    <div class="bg-gray-100 rounded-lg p-3 inline-block">
+                        <div class="flex space-x-2">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(typingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Send message to server
+                axios.post('/api/chat', { message: message })
+                    .then(function(response) {
+                        // Remove typing indicator
+                        const typingIndicators = document.querySelectorAll('.typing-indicator');
+                        typingIndicators.forEach(indicator => indicator.remove());
+                        
+                        // Add bot response
+                        addMessage(response.data.message, 'bot');
+                    })
+                    .catch(function(error) {
+                        console.error('Error sending message:', error);
+                        
+                        // Remove typing indicator
+                        const typingIndicators = document.querySelectorAll('.typing-indicator');
+                        typingIndicators.forEach(indicator => indicator.remove());
+                        
+                        // Add error message
+                        addMessage("Désolé, je rencontre des difficultés techniques. Veuillez réessayer plus tard.", 'bot');
+                    });
+            });
+            
+            // Function to add a message to the chat
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                
+                if (sender === 'user') {
+                    messageDiv.innerHTML = `
+                        <div class="flex justify-end">
+                            <div class="bg-blue-600 text-white rounded-lg p-3 inline-block max-w-xs">
+                                <p>${text}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="bg-gray-100 rounded-lg p-3 inline-block max-w-xs">
+                            <p>${text}</p>
+                        </div>
+                    `;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
     @stack('scripts')
+    
+    @include('site.components.chat-widget')
 </body>
 </html>

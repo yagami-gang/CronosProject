@@ -15,11 +15,16 @@ class Destination extends Model
         'image_url',
         'statut',
         'fuseau_horaire',
-        'populaire'
+        'populaire',
+        'duree_sejour',
+        'date_depart',
+        'prix_a_partir_de',
+        'note'
     ];
 
     protected $casts = [
-        'populaire' => 'boolean'
+        'populaire' => 'boolean',
+        'date_depart' => 'date'
     ];
 
     /**
@@ -40,6 +45,4 @@ class Destination extends Model
     {
         return $this->hasMany(Flight::class);
     }
-    
-    
 }

@@ -46,13 +46,20 @@
 
                             <div class="col-md-4 mb-4">
                                 <div class="form-group">
-                                    <label for="ville_depart" class="form-label fw-bold">Ville de départ <span class="text-danger">*</span></label>
+                                    <label for="ville_depart_id" class="form-label fw-bold">Ville de départ <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-primary text-white"><i class="fas fa-map-marker-alt"></i></span>
-                                        <input type="text" class="form-control @error('ville_depart') is-invalid @enderror" 
-                                               id="ville_depart" name="ville_depart" required 
-                                               value="{{ old('ville_depart') }}">
-                                        @error('ville_depart')
+                                        <select class="form-select @error('ville_depart_id') is-invalid @enderror" 
+                                                id="ville_depart_id" name="ville_depart_id" required>
+                                            <option value="">Sélectionner une ville de départ</option>
+                                            @foreach($destinations as $destination)
+                                                <option value="{{ $destination->id }}" 
+                                                        {{ old('ville_depart_id') == $destination->id ? 'selected' : '' }}>
+                                                    {{ $destination->ville }}, {{ $destination->pays }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('ville_depart_id')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -120,6 +127,69 @@
                                                id="prix" name="prix" required min="0" step="1000"
                                                value="{{ old('prix') }}">
                                         @error('prix')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nouveaux champs ajoutés -->
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="date_depart" class="form-label fw-bold">Date de départ du séjour</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-day"></i></span>
+                                        <input type="date" class="form-control @error('date_depart') is-invalid @enderror" 
+                                               id="date_depart" name="date_depart"
+                                               value="{{ old('date_depart') }}">
+                                        @error('date_depart')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <small class="text-muted">Date de départ pour les séjours organisés</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="duree_sejour" class="form-label fw-bold">Durée du séjour</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-clock"></i></span>
+                                        <input type="text" class="form-control @error('duree_sejour') is-invalid @enderror" 
+                                               id="duree_sejour" name="duree_sejour" 
+                                               placeholder="Ex: 7 jours / 6 nuits" value="{{ old('duree_sejour') }}">
+                                        @error('duree_sejour')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="prix_a_partir_de" class="form-label fw-bold">Prix à partir de (FCFA)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-tag"></i></span>
+                                        <input type="number" class="form-control @error('prix_a_partir_de') is-invalid @enderror" 
+                                               id="prix_a_partir_de" name="prix_a_partir_de" min="0" step="1000"
+                                               value="{{ old('prix_a_partir_de') }}">
+                                        @error('prix_a_partir_de')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <small class="text-muted">Prix promotionnel affiché sur la carte</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label for="note" class="form-label fw-bold">Note (0-5)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-star"></i></span>
+                                        <input type="number" class="form-control @error('note') is-invalid @enderror" 
+                                               id="note" name="note" min="0" max="5" step="0.1"
+                                               value="{{ old('note') }}">
+                                        @error('note')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

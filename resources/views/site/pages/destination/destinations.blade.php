@@ -80,7 +80,9 @@
                         <div class="flex items-center mb-4">
                             <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
                             <p class="text-gray-600">
-                                @if($flight->next_departure)
+                                @if($flight->date_depart)
+                                    Prochain départ le {{ \Carbon\Carbon::parse($flight->date_depart)->format('d M Y') }}
+                                @elseif($flight->next_departure)
                                     Prochain départ le {{ \Carbon\Carbon::parse($flight->next_departure)->format('d M Y') }}
                                 @else
                                     Dates flexibles
@@ -89,7 +91,13 @@
                         </div>
                         <div class="flex items-center mb-4">
                             <i class="fas fa-clock text-blue-600 mr-2"></i>
-                            <p class="text-gray-600">{{ $flight->duration_days }} jours / {{ $flight->duration_days - 1 }} nuits</p>
+                            <p class="text-gray-600">
+                                @if($flight->duree_sejour)
+                                    {{ $flight->duree_sejour }}
+                                @else
+                                    {{ $flight->duration_days }} jours / {{ $flight->duration_days - 1 }} nuits
+                                @endif
+                            </p>
                         </div>
                         <p class="text-gray-700 mb-6">{{ Str::limit($flight->description, 100) }}</p>
                         <div class="flex items-center justify-between mb-6">
@@ -100,23 +108,38 @@
                                     <p class="text-2xl font-bold text-blue-600">
                                         {{ number_format($flight->price * (1 - $flight->promotion/100), 0, ',', ' ') }}€
                                     </p>
+                                @elseif($flight->prix_a_partir_de)
+                                    <p class="text-2xl font-bold text-blue-600">{{ number_format($flight->prix_a_partir_de, 0, ',', ' ') }}€</p>
                                 @else
                                     <p class="text-2xl font-bold text-blue-600">{{ number_format($flight->price, 0, ',', ' ') }}€</p>
                                 @endif
                             </div>
                             <div class="flex items-center">
                                 <div class="flex text-yellow-400">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        @if($i <= $flight->rating)
-                                            <i class="fas fa-star"></i>
-                                        @elseif($i - 0.5 <= $flight->rating)
-                                            <i class="fas fa-star-half-alt"></i>
-                                        @else
-                                            <i class="far fa-star"></i>
-                                        @endif
-                                    @endfor
+                                    @if($flight->note)
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $flight->note)
+                                                <i class="fas fa-star"></i>
+                                            @elseif($i - 0.5 <= $flight->note)
+                                                <i class="fas fa-star-half-alt"></i>
+                                            @else
+                                                <i class="far fa-star"></i>
+                                            @endif
+                                        @endfor
+                                        <span class="ml-2 text-gray-600">{{ number_format($flight->note, 1) }}/5</span>
+                                    @else
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $flight->rating)
+                                                <i class="fas fa-star"></i>
+                                            @elseif($i - 0.5 <= $flight->rating)
+                                                <i class="fas fa-star-half-alt"></i>
+                                            @else
+                                                <i class="far fa-star"></i>
+                                            @endif
+                                        @endfor
+                                        <span class="ml-2 text-gray-600">{{ number_format($flight->rating, 1) }}/5</span>
+                                    @endif
                                 </div>
-                                <span class="ml-2 text-gray-600">{{ number_format($flight->rating, 1) }}/5</span>
                             </div>
                         </div>
                         @guest
@@ -178,38 +201,59 @@
 <script>
     function showReservationConfirmation(flightId, destination, price) {
         Swal.fire({
-            title: 'Réservation rapide',
+            title: '<h2 class="text-2xl font-bold mb-4">Réservation Express</h2>',
             html: `
-                <div class="text-left">
-                    <p class="mb-3"><strong>Destination:</strong> ${destination}</p>
-                    <p class="mb-3"><strong>Prix:</strong> ${price.toLocaleString('fr-FR')} €</p>
-                    <div class="form-group mb-3">
-                        <label for="passengers" class="form-label">Nombre de passagers:</label>
-                        <select id="passengers" class="form-control">
-                            <option value="1">1 passager</option>
-                            <option value="2">2 passagers</option>
-                            <option value="3">3 passagers</option>
-                            <option value="4">4 passagers</option>
-                            <option value="5">5 passagers</option>
-                        </select>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-6 bg-blue-50 p-4 rounded-lg">
+                        <i class="fas fa-plane-departure text-blue-600 text-2xl mr-4"></i>
+                        <div>
+                            <h3 class="font-semibold text-lg text-gray-800">${destination}</h3>
+                            <p class="text-blue-600 font-bold text-xl">${price.toLocaleString('fr-FR')} €</p>
+                        </div>
                     </div>
-                    <div class="form-group mb-3">
-                        <label for="travel_date" class="form-label">Date de voyage:</label>
-                        <input type="date" id="travel_date" class="form-control" min="${getTomorrowDate()}">
+
+                    <div class="space-y-6">
+                        <div class="form-group">
+                            <label for="passengers" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-users text-blue-500 mr-2"></i>Nombre de passagers
+                            </label>
+                            <select id="passengers" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                ${[1,2,3,4,5].map(num => `
+                                    <option value="${num}">${num} passager${num > 1 ? 's' : ''}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="travel_date" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>Date de voyage
+                            </label>
+                            <input type="date" 
+                                   id="travel_date" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                   min="${getTomorrowDate()}">
+                        </div>
                     </div>
                 </div>
             `,
             showCancelButton: true,
-            confirmButtonText: 'Confirmer la réservation',
-            cancelButtonText: 'Annuler',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonText: '<i class="fas fa-check mr-2"></i>Confirmer la réservation',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>Annuler',
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#dc2626',
+            customClass: {
+                confirmButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-blue-700',
+                cancelButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-red-700'
+            },
             preConfirm: () => {
                 const passengers = document.getElementById('passengers').value;
                 const travelDate = document.getElementById('travel_date').value;
                 
                 if (!travelDate) {
-                    Swal.showValidationMessage('Veuillez sélectionner une date de voyage');
+                    Swal.showValidationMessage(`
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        Veuillez sélectionner une date de voyage
+                    `);
                     return false;
                 }
                 

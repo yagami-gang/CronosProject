@@ -43,8 +43,8 @@ Cronos est une application web complète de réservation de vols développée av
 
 1. Cloner le dépôt
 ```bash
-git clone https://github.com/votre-utilisateur/Cronos.git
-cd Cronos
+git clone https://github.com/yagami-gang/CronosProject.git
+cd CronosProject
 ```
 
 2. Installer les dépendances
@@ -133,22 +133,8 @@ php artisan serve
 ### Interface d'administration
 ![Interface d'administration](public/images/screenshots/admin-dashboard.png)
 
-## Contribuer
-
-1. Forker le projet
-2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/amazing-feature`)
-3. Commiter vos changements (`git commit -m 'Add some amazing feature'`)
-4. Pousser vers la branche (`git push origin feature/amazing-feature`)
-5. Ouvrir une Pull Request
-
 ## Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus d'informations.
 
-## Contact
-
-Pour toute question ou suggestion, veuillez contacter l'équipe de développement à l'adresse support@Cronos.com.
-
 ---
-
-Développé avec ❤️ par l'équipe Cronos
