@@ -4,21 +4,70 @@ namespace App\Http\Controllers;
 
 use App\Models\Flight;
 use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
+    /**
+     * Update the specified reservation in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Reservation  $reservation
+     * @return \Illuminate\Http\Response
+     */
+
+     public function index()
+     {
+         $reservations = auth()->user()->reservations()
+                                     ->with('flight')
+                                     ->latest()
+                                     ->paginate(10);
+ 
+         return view('site.pages.reservations.index', compact('reservations'));
+     }
+    
+    public function update(Request $request, Reservation $reservation)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,confirmed,cancelled',
+            'notes' => 'nullable|string',
+        ]);
+
+        $reservation->update($validated);
+
+        return redirect()->route('manager.reservations.show', $reservation)
+            ->with('success', 'Réservation mise à jour avec succès');
+    }
+    /**
+     * Show the form for creating a new reservation.
+     *
+     * @param  \App\Models\Flight  $flight
+     * @return \Illuminate\View\View
+     */
     public function create(Flight $flight)
     {
         return view('site.pages.reservations.create', compact('flight'));
     }
 
+    /**
+     * Store a newly created reservation in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Flight  $flight
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, Flight $flight)
     {
         $request->validate([
@@ -53,15 +102,6 @@ class ReservationController extends Controller
         }
     }
 
-    public function index()
-    {
-        $reservations = auth()->user()->reservations()
-                                    ->with('flight')
-                                    ->latest()
-                                    ->paginate(10);
-
-        return view('site.pages.reservations.index', compact('reservations'));
-    }
 
     public function show(Reservation $reservation)
     {

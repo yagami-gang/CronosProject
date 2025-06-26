@@ -9,16 +9,18 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%234338ca' d='M50 0a50 50 0 1 0 0 100A50 50 0 0 0 50 0zm0 20a30 30 0 1 1 0 60 30 30 0 0 1 0-60z'/></svg>">
     
     <!-- Styles -->
-        @if (app()->environment('development'))
         <script src="https://cdn.tailwindcss.com"></script>
-        @else
+        {{-- @else
             <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-        @endif
+        @endif --}}
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
     <!-- Particles.js -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+    
     <!-- Tailwind CSS -->
     @stack('styles')
     <style>
@@ -313,7 +315,7 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 
                 // Send message to server
-                axios.post('/api/chat', { message: message })
+                axios.post('/api/v1/chat', { message: message })
                     .then(function(response) {
                         // Remove typing indicator
                         const typingIndicators = document.querySelectorAll('.typing-indicator');
@@ -361,6 +363,29 @@
         });
     </script>
     @stack('scripts')
+    
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // Configuration de base de Toastr
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    </script>
     
     @include('site.components.chat-widget')
 </body>

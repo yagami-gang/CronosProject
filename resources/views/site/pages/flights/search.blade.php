@@ -25,7 +25,7 @@
                                 <option value="">Sélectionnez une ville</option>
                                 @foreach(\App\Models\Destination::orderBy('ville')->get() as $destination)
                                     <option value="{{ $destination->id }}" {{ request('departure') == $destination->id ? 'selected' : '' }}>
-                                        {{ $destination->ville }} ({{ $destination->code_aeroport }})
+                                        {{ $destination->ville }}
                                     </option>
                                 @endforeach
                             </select>
@@ -45,7 +45,7 @@
                                 <option value="">Sélectionnez une ville</option>
                                 @foreach(\App\Models\Destination::orderBy('ville')->get() as $destination)
                                     <option value="{{ $destination->id }}" {{ request('destination') == $destination->id ? 'selected' : '' }}>
-                                        {{ $destination->ville }} ({{ $destination->code_aeroport }})
+                                        {{ $destination->ville }}
                                     </option>
                                 @endforeach
                             </select>
@@ -70,7 +70,7 @@
                             <i class="fas fa-tags text-blue-600 mr-2"></i>Budget maximum
                         </label>
                         <div class="relative">
-                            <input type="number" name="price_max" id="price_max" value="{{ request('price_max') ?? '' }}"
+                            <input type="number" name="price_max" id="price_max" min="0" value="{{ request('price_max') ?? '' }}"
                                    class="block w-full pl-4 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                    placeholder="Ex: 150000">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -212,7 +212,135 @@
 
 <!-- Add AJAX Search Script -->
 @push('scripts')
-<script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script> 
+    function showReservationConfirmation(flightId, destination, price) {
+            Swal.fire({
+                title: '<h2 class="text-2xl font-bold mb-4">Réservation Express</h2>',
+                html: `
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex items-center mb-6 bg-blue-50 p-4 rounded-lg">
+                            <i class="fas fa-plane-departure text-blue-600 text-2xl mr-4"></i>
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-800">${destination}</h3>
+                                <p class="text-blue-600 font-bold text-xl">${price.toLocaleString('fr-FR')} €</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="form-group">
+                                <label for="passengers" class="block text-gray-700 font-medium mb-2">
+                                    <i class="fas fa-users text-blue-500 mr-2"></i>Nombre de passagers
+                                </label>
+                                <select id="passengers" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                    ${[1,2,3,4,5].map(num => `
+                                        <option value="${num}">${num} passager${num > 1 ? 's' : ''}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="travel_date" class="block text-gray-700 font-medium mb-2">
+                                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>Date de voyage
+                                </label>
+                                <input type="date" 
+                                    id="travel_date" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                    min="${getTomorrowDate()}">
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>Confirmer la réservation',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Annuler',
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#dc2626',
+                customClass: {
+                    confirmButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-blue-700',
+                    cancelButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-red-700'
+                },
+                preConfirm: () => {
+                    const passengers = document.getElementById('passengers').value;
+                    const travelDate = document.getElementById('travel_date').value;
+                    
+                    if (!travelDate) {
+                        Swal.showValidationMessage(`
+                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                            Veuillez sélectionner une date de voyage
+                        `);
+                        return false;
+                    }
+                    
+                    return { passengers, travelDate };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un indicateur de chargement
+                    Swal.fire({
+                        title: 'Traitement en cours...',
+                        html: 'Veuillez patienter pendant que nous traitons votre réservation',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Envoyer les données au serveur
+                    fetch('{{ route("reservations.quick-store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            flight_id: flightId,
+                            passengers_count: result.value.passengers,
+                            travel_date: result.value.travelDate,
+                            price_paid: price * result.value.passengers,
+                            seat_number: result.value.passengers, // Random seat number between 1-100
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Réservation confirmée!',
+                                text: data.message,
+                                confirmButtonText: 'Voir mes réservations',
+                                showCancelButton: true,
+                                cancelButtonText: 'Continuer mes recherches'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '{{ route("reservations.index") }}';
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erreur',
+                                text: data.message || 'Une erreur est survenue lors de la réservation.'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: 'Une erreur est survenue lors de la communication avec le serveur.'
+                        });
+                    });
+                }
+            });
+        }
+    
+    function getTomorrowDate() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        return tomorrow.toISOString().split('T')[0];
+    }
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('search-form');
         const resultsContainer = document.getElementById('search-results');
@@ -221,7 +349,9 @@
         // Add event listeners to all form inputs
         inputs.forEach(inputId => {
             const element = document.getElementById(inputId);
-            element.addEventListener('change', performSearch);
+            ['change', 'input'].forEach(evt => {
+                element.addEventListener(evt, performSearch);
+            });
         });
         
         // Prevent default form submission and use AJAX instead
@@ -231,6 +361,23 @@
         });
         
         function performSearch() {
+            // Check if departure and destination are the same
+            const departure = document.getElementById('departure').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (departure && destination && departure === destination) {
+                // Afficher l'erreur avec Toastr
+                toastr.error("La ville de départ et la ville d'arrivée doivent être différentes", 'Erreur de sélection', {
+                    closeButton: true,
+                    timeOut: 5000,
+                    progressBar: true
+                });
+                
+                // Réinitialiser le champ de destination
+                document.getElementById('destination').value = '';
+                return;
+            }
+            
             // Show loading indicator
             resultsContainer.innerHTML = '<div class="flex justify-center py-12"><i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i></div>';
             

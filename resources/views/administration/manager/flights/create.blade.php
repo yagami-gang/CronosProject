@@ -132,24 +132,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Nouveaux champs ajoutés -->
-                            <div class="col-md-4 mb-4">
-                                <div class="form-group">
-                                    <label for="date_depart" class="form-label fw-bold">Date de départ du séjour</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-calendar-day"></i></span>
-                                        <input type="date" class="form-control @error('date_depart') is-invalid @enderror" 
-                                               id="date_depart" name="date_depart"
-                                               value="{{ old('date_depart') }}">
-                                        @error('date_depart')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <small class="text-muted">Date de départ pour les séjours organisés</small>
-                                </div>
-                            </div>
-
                             <div class="col-md-4 mb-4">
                                 <div class="form-group">
                                     <label for="duree_sejour" class="form-label fw-bold">Durée du séjour</label>

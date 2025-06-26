@@ -10,21 +10,15 @@ class Destination extends Model
     protected $fillable = [
         'pays',
         'ville',
-        'code_aeroport',
         'description',
         'image_url',
         'statut',
-        'fuseau_horaire',
         'populaire',
-        'duree_sejour',
-        'date_depart',
-        'prix_a_partir_de',
         'note'
     ];
 
     protected $casts = [
         'populaire' => 'boolean',
-        'date_depart' => 'date'
     ];
 
     /**

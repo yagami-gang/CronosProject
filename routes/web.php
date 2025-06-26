@@ -85,24 +85,33 @@ Route::middleware(['auth', 'manager'])->prefix('manager')->group(function () {
     Route::get('/dashboard', [ManagerController::class, 'dashboard'])->name('manager.dashboard');
     
     // Flights management
-    Route::get('/flights', [ManagerController::class, 'flightsList'])->name('manager.flights.index');
-    Route::get('/flights/create', [ManagerController::class, 'flightsCreate'])->name('manager.flights.create');
-    Route::post('/flights', [ManagerController::class, 'flightsStore'])->name('manager.flights.store');
-    Route::get('/flights/{flight}/edit', [ManagerController::class, 'flightsEdit'])->name('manager.flights.edit');
-    Route::put('/flights/{flight}', [ManagerController::class, 'flightsUpdate'])->name('manager.flights.update');
-    Route::delete('/flights/{flight}/delete', [ManagerController::class, 'flightsDestroy'])->name('manager.flights.destroy');
-    // Destinations management 
-    Route::get('/destinations', [ManagerController::class, 'destinationsList'])->name('manager.destinations.index');
-    Route::get('/destinations/create', [ManagerController::class, 'destinationsCreate'])->name('manager.destinations.create');
-    Route::post('/destinations/store', [ManagerController::class, 'destinationsStore'])->name('manager.destinations.store');
-    Route::get('/destinations/{destination}/edit', [ManagerController::class, 'destinationsEdit'])->name('manager.destinations.edit');
-    Route::put('/destinations/{destination}', [ManagerController::class, 'destinationsUpdate'])->name('manager.destinations.update');
-    Route::delete('/destinations/{destination}/delete', [ManagerController::class, 'destroy'])->name('manager.destinations.destroy');
+    Route::resource('flights', FlightController::class)->names([
+        'index' => 'manager.flights.index',
+        'create' => 'manager.flights.create',
+        'store' => 'manager.flights.store',
+        'show' => 'manager.flights.show',
+        'edit' => 'manager.flights.edit',
+        'update' => 'manager.flights.update',
+        'destroy' => 'manager.flights.destroy',
+    ]);
+    
+    // Destinations management
+    Route::resource('destinations', DestinationController::class)->names([
+        'index' => 'manager.destinations.index',
+        'create' => 'manager.destinations.create',
+        'store' => 'manager.destinations.store',
+        'show' => 'manager.destinations.show',
+        'edit' => 'manager.destinations.edit',
+        'update' => 'manager.destinations.update',
+        'destroy' => 'manager.destinations.destroy',
+    ]);
     
     // Reservations management
-    Route::get('/reservations', [ManagerController::class, 'reservationsList'])->name('manager.reservations.index');
-    Route::get('/reservations/{reservation}', [ManagerController::class, 'reservationsShow'])->name('manager.reservations.show');
-    Route::put('/reservations/{reservation}', [ManagerController::class, 'reservationsUpdate'])->name('manager.reservations.update');
+    Route::resource('reservations', ManagerController::class)->names([
+        'index' => 'manager.reservations.index',
+        'show' => 'manager.reservations.show',
+        'update' => 'manager.reservations.update',
+    ]);
 });
 
 
