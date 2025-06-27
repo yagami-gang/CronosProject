@@ -11,8 +11,8 @@ class MonetbilServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        require_once app_path('Libraries/Monetbil/autoload.php');
-    require_once app_path('Libraries/Monetbil/config.php');
+        require_once app_path('Libraries/Monetbil/monetbil.php');
+        require_once app_path('Libraries/Monetbil/config.php');
     }
 
     /**

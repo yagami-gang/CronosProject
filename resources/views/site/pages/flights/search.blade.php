@@ -215,126 +215,127 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script> 
     function showReservationConfirmation(flightId, destination, price) {
-            Swal.fire({
-                title: '<h2 class="text-2xl font-bold mb-4">Réservation Express</h2>',
-                html: `
-                    <div class="bg-white p-6 rounded-lg shadow-md">
-                        <div class="flex items-center mb-6 bg-blue-50 p-4 rounded-lg">
-                            <i class="fas fa-plane-departure text-blue-600 text-2xl mr-4"></i>
-                            <div>
-                                <h3 class="font-semibold text-lg text-gray-800">${destination}</h3>
-                                <p class="text-blue-600 font-bold text-xl">${price.toLocaleString('fr-FR')} €</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-6">
-                            <div class="form-group">
-                                <label for="passengers" class="block text-gray-700 font-medium mb-2">
-                                    <i class="fas fa-users text-blue-500 mr-2"></i>Nombre de passagers
-                                </label>
-                                <select id="passengers" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
-                                    ${[1,2,3,4,5].map(num => `
-                                        <option value="${num}">${num} passager${num > 1 ? 's' : ''}</option>
-                                    `).join('')}
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="travel_date" class="block text-gray-700 font-medium mb-2">
-                                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>Date de voyage
-                                </label>
-                                <input type="date" 
-                                    id="travel_date" 
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                                    min="${getTomorrowDate()}">
-                            </div>
-                        </div>
+    Swal.fire({
+        title: '<h2 class="text-2xl font-bold mb-4">Réservation Express</h2>',
+        html: `
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex items-center mb-6 bg-blue-50 p-4 rounded-lg">
+                    <i class="fas fa-plane-departure text-blue-600 text-2xl mr-4"></i>
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800">${destination}</h3>
+                        <p class="text-blue-600 font-bold text-xl">${price.toLocaleString('fr-FR')} €</p>
                     </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '<i class="fas fa-check mr-2"></i>Confirmer la réservation',
-                cancelButtonText: '<i class="fas fa-times mr-2"></i>Annuler',
-                confirmButtonColor: '#2563eb',
-                cancelButtonColor: '#dc2626',
-                customClass: {
-                    confirmButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-blue-700',
-                    cancelButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-red-700'
-                },
-                preConfirm: () => {
-                    const passengers = document.getElementById('passengers').value;
-                    const travelDate = document.getElementById('travel_date').value;
-                    
-                    if (!travelDate) {
-                        Swal.showValidationMessage(`
-                            <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
-                            Veuillez sélectionner une date de voyage
-                        `);
-                        return false;
-                    }
-                    
-                    return { passengers, travelDate };
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Afficher un indicateur de chargement
-                    Swal.fire({
-                        title: 'Traitement en cours...',
-                        html: 'Veuillez patienter pendant que nous traitons votre réservation',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Envoyer les données au serveur
-                    fetch('{{ route("reservations.quick-store") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            flight_id: flightId,
-                            passengers_count: result.value.passengers,
-                            travel_date: result.value.travelDate,
-                            price_paid: price * result.value.passengers,
-                            seat_number: result.value.passengers, // Random seat number between 1-100
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Réservation confirmée!',
-                                text: data.message,
-                                confirmButtonText: 'Voir mes réservations',
-                                showCancelButton: true,
-                                cancelButtonText: 'Continuer mes recherches'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = '{{ route("reservations.index") }}';
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erreur',
-                                text: data.message || 'Une erreur est survenue lors de la réservation.'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erreur',
-                            text: 'Une erreur est survenue lors de la communication avec le serveur.'
-                        });
-                    });
+                </div>
+
+                <div class="space-y-6">
+                    <div class="form-group">
+                        <label for="passengers" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-users text-blue-500 mr-2"></i>Nombre de passagers
+                        </label>
+                        <select id="passengers" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                            ${[1,2,3,4,5].map(num => `
+                                <option value="${num}">${num} passager${num > 1 ? 's' : ''}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="travel_date" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>Date de voyage
+                        </label>
+                        <input type="date" 
+                            id="travel_date" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            min="${getTomorrowDate()}">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check mr-2"></i>Confirmer la réservation',
+        cancelButtonText: '<i class="fas fa-times mr-2"></i>Annuler',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#dc2626',
+        customClass: {
+            confirmButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-blue-700',
+            cancelButton: 'px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:bg-red-700'
+        },
+        preConfirm: () => {
+            const passengers = document.getElementById('passengers').value;
+            const travelDate = document.getElementById('travel_date').value;
+            
+            if (!travelDate) {
+                Swal.showValidationMessage(`
+                    <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                    Veuillez sélectionner une date de voyage
+                `);
+                return false;
+            }
+            
+            return { passengers, travelDate };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Traitement en cours...',
+                html: 'Veuillez patienter pendant que nous traitons votre réservation',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
             });
+
+            fetch('{{ route("payment.initiate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    flight_id: flightId,
+                    passengers_count: result.value.passengers,
+                    travel_date: result.value.travelDate,
+                    amount: price * result.value.passengers,
+                    item_name: `Réservation de vol pour ${result.value.passengers} personne(s)`
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.payment_url) {
+                    // Rediriger vers la page de confirmation
+                    Monetbil.init({
+                            url: data.payment_url
+                        });
+                    // Afficher un message à l'utilisateur
+                    // Swal.fire({
+                    //     title: 'Redirection en cours',
+                    //     text: 'Vous allez être redirigé vers la page de paiement sécurisée',
+                    //     icon: 'info',
+                    //     showConfirmButton: true,
+                    //     confirmButtonText: 'OK',
+                    //     allowOutsideClick: false
+                    // }).then(() => {
+                    //     // Ouvrir le widget dans un nouvel onglet
+                    //     //openMonetbilWidget(data.payment_url);
+                    // });
+                } else {
+                    throw new Error(data.message || 'Erreur lors de l\'initialisation du paiement');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur de paiement:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: `Une erreur est survenue lors de l'initialisation du paiement: ${error.message}`,
+                    confirmButtonText: 'OK'
+                });
+            });
         }
+    });
+}
+
     
     function getTomorrowDate() {
         const tomorrow = new Date();

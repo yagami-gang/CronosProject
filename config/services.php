@@ -30,5 +30,10 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'monetbil' => [
+    'service_key' => env('MONETBIL_SERVICE_KEY'),
+    'secret_key' => env('MONETBIL_SECRET_KEY'),
+    'env' => env('MONETBIL_ENV', 'sandbox'),
+],
 
 ];

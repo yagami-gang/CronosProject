@@ -20,5 +20,4 @@ if (!defined('__MONETBIL__')) {
 // To get your service key and secret, go to -> https://www.monetbil.com/services
 Monetbil::setServiceKey(env('MONETBIL_SERVICE_KEY'));
 Monetbil::setServiceSecret(env('MONETBIL_SECRET_KEY'));
-Monetbil::setVersion('v2.1'); // Version du widget
-Monetbil::setTestMode(env('APP_ENV') !== 'production');
+Monetbil::setWidgetVersion('v2.1'); // Version du widget

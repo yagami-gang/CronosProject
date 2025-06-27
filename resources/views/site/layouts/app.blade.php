@@ -362,10 +362,11 @@
             }
         });
     </script>
-    @stack('scripts')
     
     <!-- Toastr JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
     <script>
         // Configuration de base de Toastr
         toastr.options = {
@@ -386,7 +387,7 @@
             "hideMethod": "fadeOut"
         };
     </script>
-    
+    @stack('scripts')
     @include('site.components.chat-widget')
 </body>
 </html>

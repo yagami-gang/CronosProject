@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FlightController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DestinationController;
@@ -34,8 +35,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/password', [ProfileController::class, 'passwordGet'])->name('profile.password.get');
     Route::post('/profile/password', [ProfileController::class, 'passwordPost'])->name('profile.password.post');
-
-    // Réservations
+    Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
+    Route::get('/payment/return/{reservation}', [PaymentController::class, 'handleReturn'])->name('payment.return');
+    Route::get('/payment/cancel/{reservation}', [PaymentController::class, 'handleCancel'])->name('payment.cancel'); 
+    // Webhook pour les notifications de paiement
+        Route::post('/payment/webhook', [PaymentController::class, 'handleWebhook'])
+        ->name('payment.webhook');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
     Route::get('/reservations/create/{flight}', [ReservationController::class, 'create'])->name('reservations.create');
     Route::post('/reservations', [ReservationController::class, 'store'])->name('reservations.store');

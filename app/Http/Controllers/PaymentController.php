@@ -2,83 +2,128 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Payment;
-use App\Models\Reservation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Reservation;
+use App\Services\MonetbilService;
 
 class PaymentController extends Controller
 {
-    public function __construct()
+    protected $monetbilService;
+
+    public function __construct(MonetbilService $monetbilService)
     {
-        $this->middleware('auth');
+        $this->monetbilService = $monetbilService;
     }
 
-    public function create(Reservation $reservation)
+    public function initiatePayment(Request $request)
     {
-        $this->authorize('view', $reservation);
-
-        if ($reservation->payment_status === 'completed') {
-            return redirect()->route('reservations.show', $reservation)
-                           ->with('info', 'Cette réservation a déjà été payée.');
-        }
-
-        return view('site.pages.payments.create', compact('reservation'));
-    }
-
-    public function store(Request $request, Reservation $reservation)
-    {
-        $this->authorize('update', $reservation);
-
         $request->validate([
-            'payment_method' => 'required|in:orange_money,mobile_money,card',
-            'phone_number' => 'required_if:payment_method,orange_money,mobile_money|nullable|string',
-            'card_number' => 'required_if:payment_method,card|nullable|string',
-            'expiry_date' => 'required_if:payment_method,card|nullable|string',
-            'cvv' => 'required_if:payment_method,card|nullable|string'
+            'flight_id' => 'required|exists:flights,id',
+            'passengers_count' => 'required|integer|min:1',
+            'travel_date' => 'required|date',
+            'amount' => 'required|numeric',
+            'item_name' => 'required|string'
         ]);
 
         try {
-            DB::beginTransaction();
+            // Créer une réservation en attente de paiement
+            $reservation = Reservation::create([
+                'user_id' => auth()->id(),
+                'flight_id' => $request->flight_id,
+                'passengers_count' => $request->passengers_count,
+                'travel_date' => $request->travel_date,
+                'price_paid' => $request->amount,
+                'status' => 'pending',
+                'payment_status' => 'pending',
+            ]);
 
-            // Simuler l'intégration avec un service de paiement
-            $paymentDetails = $this->processPayment($request, $reservation);
+            // Initialiser le paiement Monetbil
+            $paymentData = [
+                'amount' => $request->amount,
+                'currency' => 'XAF',
+                'item_ref' => 'RES-' . $reservation->id,
+                'payment_ref' => 'PAY-' . time() . '-' . $reservation->id,
+                'user' => auth()->id(),
+                'email' => auth()->user()->email,
+                'country' => 'CM',
+                'return_url' => route('payment.return', ['reservation' => $reservation->id]),
+                'notify_url' => route('payment.webhook'),
+                'cancel_url' => route('payment.cancel', ['reservation' => $reservation->id]),
+                'first_name' => auth()->user()->first_name ?? 'Client',
+                'last_name' => auth()->user()->last_name ?? 'Anonyme',
+                'item_name' => $request->item_name
+            ];
 
-            $payment = Payment::create([
+            // Récupérer l'URL de paiement
+            $paymentUrl = sprintf('%s?%s', $this->monetbilService->initiatePayment($paymentData), http_build_query($paymentData));
+            
+            // Retourner l'URL de paiement pour redirection
+            return response()->json([
+                'success' => true,
                 'reservation_id' => $reservation->id,
-                'amount' => $reservation->price_paid,
-                'payment_method' => $request->payment_method,
-                'transaction_id' => $paymentDetails['transaction_id'],
-                'status' => 'completed',
-                'payment_details' => $paymentDetails
+                'payment_url' => $paymentUrl
             ]);
 
-            $reservation->update([
-                'status' => 'confirmed',
-                'payment_status' => 'completed'
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('reservations.show', $reservation)
-                           ->with('success', 'Paiement effectué avec succès !');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Une erreur est survenue lors du paiement.');
+            \Log::error('Payment Initiation Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'initialisation du paiement'
+            ], 500);
         }
     }
 
-    private function processPayment($request, $reservation)
+    public function handleReturn(Request $request, $reservationId)
     {
-        // Simulation du traitement du paiement
-        // En production, intégrer de vrais services de paiement ici
-        return [
-            'transaction_id' => 'TXN_' . uniqid(),
-            'amount' => $reservation->price_paid,
-            'currency' => 'XAF',
-            'payment_method' => $request->payment_method,
-            'status' => 'success',
-            'timestamp' => now()->toIso8601String()
-        ];
+        $reservation = Reservation::findOrFail($reservationId);
+        
+        if ($reservation->status === 'paid') {
+            return redirect()->route('reservations.show', $reservation)
+                ->with('success', 'Paiement effectué avec succès !');
+        }
+
+        return redirect()->route('reservations.show', $reservation)
+            ->with('warning', 'Votre paiement est en cours de traitement.');
+    }
+
+    public function handleWebhook(Request $request)
+    {
+        $paymentId = $request->input('paymentId');
+        $paymentStatus = $this->monetbilService->verifyPayment($paymentId);
+
+        $transaction = $paymentStatus['transaction'];
+        $itemRef = $transaction['item_ref'] ?? '';
+        
+        // Extraire l'ID de réservation (format: RES-123)
+        $reservationId = str_replace('RES-', '', $itemRef);
+        $reservation = Reservation::find($reservationId);
+        
+        if (!$reservation) {
+            \Log::error('Réservation non trouvée', ['id' => $reservationId]);
+            return response()->json(['error' => 'Réservation non trouvée'], 404);
+        }
+        
+        // Mettre à jour selon le statut
+        if ($transaction['status'] === 'SUCCESS') {
+            $reservation->update([
+                'status' => 'confirmed',
+                'payment_status' => 'payment_status',
+                'paid_at' => now(),
+                'payment_reference' => $transaction['id']
+            ]);
+            
+             Mail::to($reservation->user->email)->send(new ReservationConfirmed($reservation));
+            
+        } elseif (in_array($transaction['status'], ['FAILED', 'EXPIRED'])) {
+            $reservation->update([
+                'status' => 'cancelled',
+                'payment_status' => 'failed',
+                'cancelled_at' => now()
+            ]);
+            
+             Mail::to($reservation->user->email)->send(new PaymentFailed($reservation));
+        }
+        
+        return response()->json(['status' => 'success']);
     }
 }
