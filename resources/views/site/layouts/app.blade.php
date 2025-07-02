@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name') }} - Votre Partenaire de Voyage</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%234338ca' d='M50 0a50 50 0 1 0 0 100A50 50 0 0 0 50 0zm0 20a30 30 0 1 1 0 60 30 30 0 0 1 0-60z'/></svg>">
-    
+
     <!-- Styles -->
         <script src="https://cdn.tailwindcss.com"></script>
         {{-- @else
             <link href="{{ asset('css/app.css') }}" rel="stylesheet">
         @endif --}}
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
+
     <!-- Particles.js -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-    
+
     <!-- Tailwind CSS -->
     @stack('styles')
     <style>
@@ -28,101 +28,150 @@
         #chat-toggle {
             transition: transform 0.3s ease;
         }
-    
+
         #chat-toggle.rotate-90 {
             transform: rotate(90deg);
         }
-    
+
         #chat-window {
             transition: all 0.3s ease;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-    
+
         #chat-messages {
             scrollbar-width: thin;
             scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
         }
-    
+
         #chat-messages::-webkit-scrollbar {
             width: 6px;
         }
-    
+
         #chat-messages::-webkit-scrollbar-track {
             background: transparent;
         }
-    
+
         #chat-messages::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
         }
-    
+
         .chat-message {
             margin-bottom: 1rem;
         }
-    
+
         .chat-message.user {
             text-align: right;
         }
-    
+
         .typing-indicator {
             display: inline-block;
         }
-            
-    </style>   
+
+    </style>
 </head>
 <body class="font-sans antialiased">
     <!-- Header -->
-    <header class="fixed w-full z-50 transition-all duration-300 bg-blue-900/95 backdrop-blur-sm shadow-lg" id="main-header">
+    <header class="fixed z-50 w-full shadow-lg backdrop-blur-sm transition-all duration-300 bg-blue-900/95" id="main-header">
         <nav class="bg-transparent">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-20">
+            <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center px-4 h-20">
+                    <!-- Logo -->
                     <div class="flex items-center">
-                        <!-- Logo SVG -->
-                        <a href="{{ route('home') }}" class="flex-shrink-0">
-                            <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto brightness-150 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all duration-300 hover:brightness-125">
+                        <a href="{{ route('home') }}" class="flex-shrink-0 transition-transform duration-300 transform hover:scale-105">
+                            <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto brightness-150 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] transition-all duration-300">
                         </a>
                     </div>
-                    
-                    <div class="hidden md:flex items-center space-x-8">
-                        <a href="{{ route('flights.search') }}" class="text-white hover:text-blue-200 transition-colors">Vols</a>
-                        <a href="{{ route('public.destinations') }}" class="text-white hover:text-blue-200 transition-colors">Destinations</a>
-                        <a href="#services" class="text-white hover:text-blue-200 transition-colors">Services</a>
+
+                    <!-- Navigation Desktop -->
+                    <div class="hidden items-center space-x-1 md:flex">
+
+                        <a href="{{ route('home') }}" class="flex items-center px-4 py-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
+                            <i class="mr-2 text-blue-300 fas fa-home group-hover:text-white"></i>
+                            <span class="font-medium">Accueil</span>
+                        </a>
+
+                        <a href="{{ route('flights.search') }}" class="flex items-center px-4 py-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
+                            <i class="mr-2 text-blue-300 fas fa-plane-departure group-hover:text-white"></i>
+                            <span class="font-medium">Vols</span>
+                        </a>
+
+
+                        <a href="#" class="flex items-center px-4 py-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
+                            <i class="mr-2 text-blue-300 fas fa-map-marked-alt group-hover:text-white"></i>
+                            <span class="font-medium">Destinations populaires</span>
+                        </a>
+                        <a href="#services" class="flex items-center px-4 py-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
+                            <i class="mr-2 text-blue-300 fas fa-concierge-bell group-hover:text-white"></i>
+                            <span class="font-medium">Services</span>
+                        </a>
                         @auth
-                            <div class="relative group">
-                                <button class="flex items-center space-x-2 text-white focus:outline-none">
-                                    <img src="{{ Auth::user()->avatar ?? asset('images/default-avatar.png') }}" 
-                                         class="w-8 h-8 rounded-full object-cover">
-                                    <span>{{ Auth::user()->name }}</span>
+                            @if (Auth::user()->hasRole('gestionnaire'))
+                                <a href="{{ route('manager.dashboard') }}" class="flex items-center px-4 py-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
+                                    <i class="mr-2 text-blue-300 fas fa-lock group-hover:text-white"></i>
+                                    <span class="font-medium">Back Office</span>
+                                </a>
+                            @endif
+                        @endauth
+
+
+
+
+                        @auth
+                            <div class="relative ml-2 group">
+                                <button class="flex items-center px-4 py-2 space-x-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10">
+                                    <div class="relative">
+                                        <img src="{{ Auth::user()->avatar ?? asset('images/default-avatar.png') }}"
+                                             class="object-cover w-9 h-9 rounded-full border-2 transition-colors duration-300 border-white/20 hover:border-blue-300">
+                                        <span class="absolute right-0 bottom-0 w-3 h-3 bg-green-400 rounded-full border-2 border-blue-900"></span>
+                                    </div>
+                                    <span class="font-medium">{{ Auth::user()->name }}</span>
+                                    <i class="text-xs opacity-70 transition-transform duration-300 transform fas fa-chevron-down group-hover:opacity-100"></i>
                                 </button>
-                                <div class="absolute right-0 w-48 mt-2 py-2 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                                    <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                        <i class="fas fa-user mr-2"></i>Mon profil
+
+                                <div class="absolute right-0 invisible py-2 mt-2 w-56 rounded-xl border shadow-xl opacity-0 backdrop-blur-sm transition-all duration-300 transform origin-top-right scale-95 bg-white/95 group-hover:opacity-100 group-hover:visible group-hover:scale-100 border-white/10">
+                                    <div class="px-4 py-3 border-b border-gray-100/10">
+                                        <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                                    </div>
+                                    <a href="{{ route('profile.show') }}" class="flex items-center px-4 py-2.5 text-gray-700 transition-colors hover:bg-blue-50">
+                                        <i class="mr-3 w-5 text-center text-gray-500 fas fa-user-circle"></i>
+                                        <span>Mon profil</span>
                                     </a>
-                                    <a href="{{ route('reservations.index') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                        <i class="fas fa-ticket-alt mr-2"></i>Mes réservations
+                                    <a href="{{ route('reservations.index') }}" class="flex items-center px-4 py-2.5 text-gray-700 transition-colors hover:bg-blue-50">
+                                        <i class="mr-3 w-5 text-center text-gray-500 fas fa-ticket-alt"></i>
+                                        <span>Mes réservations</span>
                                     </a>
-                                    <hr class="my-2">
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100">
-                                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
-                                        </button>
-                                    </form>
+                                    <div class="px-4 py-2.5 border-t border-gray-100/10">
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="flex items-center px-1 py-1.5 w-full text-left text-red-600 rounded transition-colors hover:bg-red-50">
+                                                <i class="mr-3 w-5 text-center fas fa-sign-out-alt"></i>
+                                                <span>Déconnexion</span>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @else
-                            <a href="{{ route('login') }}" class="text-white hover:text-blue-200 transition-colors">Connexion</a>
-                            <a href="{{ route('register') }}" 
-                               class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">
-                                Inscription
-                            </a>
+                            <div class="flex items-center ml-2 space-x-3">
+                                <a href="{{ route('login') }}" class="flex items-center px-4 py-2 text-white rounded-lg transition-colors duration-300 hover:bg-white/10">
+                                    <i class="mr-2 fas fa-sign-in-alt"></i>
+                                    <span>Connexion</span>
+                                </a>
+                                <a href="{{ route('register') }}"
+                                   class="flex items-center px-4 py-2 text-blue-600 bg-white rounded-lg shadow-md transition-colors duration-300 transform hover:bg-blue-50 hover:shadow-lg hover:-translate-y-0.5">
+                                    <i class="mr-2 fas fa-user-plus"></i>
+                                    <span class="font-medium">S'inscrire</span>
+                                </a>
+                            </div>
                         @endauth
                     </div>
 
                     <!-- Mobile menu button -->
-                    <div class="md:hidden flex items-center">
-                        <button class="mobile-menu-button text-white focus:outline-none">
-                            <i class="fas fa-bars text-2xl"></i>
+                    <div class="flex items-center md:hidden">
+                        <button class="p-2 text-white rounded-lg transition-colors duration-300 mobile-menu-button focus:outline-none hover:bg-white/10">
+                            <i class="text-xl fas fa-bars"></i>
                         </button>
                     </div>
                 </div>
@@ -131,29 +180,29 @@
     </header>
 
     <!-- Mobile menu -->
-    <div class="mobile-menu hidden md:hidden fixed inset-0 z-40 bg-blue-900/95 backdrop-blur-sm">
+    <div class="hidden fixed inset-0 z-40 backdrop-blur-sm mobile-menu md:hidden bg-blue-900/95">
         <div class="p-4">
             <div class="flex justify-end">
-                <button class="mobile-menu-close text-white focus:outline-none">
-                    <i class="fas fa-times text-2xl"></i>
+                <button class="text-white mobile-menu-close focus:outline-none">
+                    <i class="text-2xl fas fa-times"></i>
                 </button>
             </div>
-            <div class="flex flex-col space-y-4 mt-8">
-                <a href="{{ route('flights.search') }}" class="text-white text-lg">Vols</a>
-                <a href="{{ route('public.destinations') }}" class="text-white text-lg">Destinations</a>
-                <a href="#services" class="text-white text-lg">Services</a>
+            <div class="flex flex-col mt-8 space-y-4">
+                <a href="{{ route('flights.search') }}" class="text-lg text-white">Vols</a>
+                <a href="{{ route('public.destinations') }}" class="text-lg text-white">Destinations</a>
+                <a href="#services" class="text-lg text-white">Services</a>
                 @auth
                     <hr class="border-white/20">
-                    <a href="{{ route('profile.show') }}" class="text-white text-lg">Mon profil</a>
-                    <a href="{{ route('reservations.index') }}" class="text-white text-lg">Mes réservations</a>
+                    <a href="{{ route('profile.show') }}" class="text-lg text-white">Mon profil</a>
+                    <a href="{{ route('reservations.index') }}" class="text-lg text-white">Mes réservations</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-white text-lg">Déconnexion</button>
+                        <button type="submit" class="text-lg text-white">Déconnexion</button>
                     </form>
                 @else
                     <hr class="border-white/20">
-                    <a href="{{ route('login') }}" class="text-white text-lg">Connexion</a>
-                    <a href="{{ route('register') }}" class="text-white text-lg">Inscription</a>
+                    <a href="{{ route('login') }}" class="text-lg text-white">Connexion</a>
+                    <a href="{{ route('register') }}" class="text-lg text-white">Inscription</a>
                 @endauth
             </div>
         </div>
@@ -164,65 +213,65 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer class="text-white bg-gray-900">
+        <div class="px-4 py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
                 <div>
                     <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto brightness-150 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] transition-all duration-300 hover:brightness-125">
                     <p class="text-gray-400">Votre partenaire de confiance pour des voyages inoubliables</p>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Liens rapides</h3>
+                    <h3 class="mb-4 text-lg font-semibold">Liens rapides</h3>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('flights.search') }}" class="text-gray-400 hover:text-white transition-colors">Rechercher un vol</a></li>
-                        <li><a href="{{ route('public.destinations') }}" class="text-gray-400 hover:text-white transition-colors">Destinations</a></li>
-                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Nos services</a></li>
+                        <li><a href="{{ route('flights.search') }}" class="text-gray-400 transition-colors hover:text-white">Rechercher un vol</a></li>
+                        <li><a href="{{ route('public.destinations') }}" class="text-gray-400 transition-colors hover:text-white">Destinations</a></li>
+                        <li><a href="#services" class="text-gray-400 transition-colors hover:text-white">Nos services</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <h3 class="mb-4 text-lg font-semibold">Contact</h3>
                     <ul class="space-y-2">
                         <li class="flex items-center text-gray-400">
-                            <i class="fas fa-phone mr-2"></i>
+                            <i class="mr-2 fas fa-phone"></i>
                             +237 6 51 69 98 51
                         </li>
                         <li class="flex items-center text-gray-400">
-                            <i class="fas fa-envelope mr-2"></i>
+                            <i class="mr-2 fas fa-envelope"></i>
                             contact@cronos.com
                         </li>
                         <li class="flex items-center text-gray-400">
-                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <i class="mr-2 fas fa-map-marker-alt"></i>
                             Yaoudé, Cameroun
                         </li>
                     </ul>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Suivez-nous</h3>
+                    <h3 class="mb-4 text-lg font-semibold">Suivez-nous</h3>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fab fa-facebook text-2xl"></i>
+                        <a href="#" class="text-gray-400 transition-colors hover:text-white">
+                            <i class="text-2xl fab fa-facebook"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fab fa-twitter text-2xl"></i>
+                        <a href="#" class="text-gray-400 transition-colors hover:text-white">
+                            <i class="text-2xl fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                            <i class="fab fa-instagram text-2xl"></i>
+                        <a href="#" class="text-gray-400 transition-colors hover:text-white">
+                            <i class="text-2xl fab fa-instagram"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            
-            <hr class="border-gray-800 my-8">
-            
-            <div class="flex flex-col md:flex-row justify-between items-center">
+
+            <hr class="my-8 border-gray-800">
+
+            <div class="flex flex-col justify-between items-center md:flex-row">
                 <p class="text-gray-400">&copy; {{ date('Y') }} {{ config('app.name') }}. Tous droits réservés.</p>
-                <div class="flex space-x-4 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Mentions légales</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Politique de confidentialité</a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">CGV</a>
+                <div class="flex mt-4 space-x-4 md:mt-0">
+                    <a href="#" class="text-gray-400 transition-colors hover:text-white">Mentions légales</a>
+                    <a href="#" class="text-gray-400 transition-colors hover:text-white">Politique de confidentialité</a>
+                    <a href="#" class="text-gray-400 transition-colors hover:text-white">CGV</a>
                 </div>
             </div>
         </div>
@@ -275,35 +324,35 @@
             const chatForm = document.getElementById('chat-form');
             const chatInput = document.getElementById('chat-input');
             const chatMessages = document.getElementById('chat-messages');
-            
+
             // Toggle chat window
             chatToggle.addEventListener('click', function() {
                 chatWindow.classList.toggle('hidden');
                 chatToggle.classList.toggle('rotate-90');
             });
-            
+
             // Close chat window
             chatClose.addEventListener('click', function() {
                 chatWindow.classList.add('hidden');
                 chatToggle.classList.remove('rotate-90');
             });
-            
+
             // Send message
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 const message = chatInput.value.trim();
                 if (!message) return;
-                
+
                 // Add user message to chat
                 addMessage(message, 'user');
                 chatInput.value = '';
-                
+
                 // Show typing indicator
                 const typingIndicator = document.createElement('div');
                 typingIndicator.className = 'chat-message bot typing-indicator';
                 typingIndicator.innerHTML = `
-                    <div class="bg-gray-100 rounded-lg p-3 inline-block">
+                    <div class="inline-block p-3 bg-gray-100 rounded-lg">
                         <div class="flex space-x-2">
                             <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                             <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
@@ -313,56 +362,56 @@
                 `;
                 chatMessages.appendChild(typingIndicator);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                
+
                 // Send message to server
                 axios.post('/api/v1/chat', { message: message })
                     .then(function(response) {
                         // Remove typing indicator
                         const typingIndicators = document.querySelectorAll('.typing-indicator');
                         typingIndicators.forEach(indicator => indicator.remove());
-                        
+
                         // Add bot response
                         addMessage(response.data.message, 'bot');
                     })
                     .catch(function(error) {
                         console.error('Error sending message:', error);
-                        
+
                         // Remove typing indicator
                         const typingIndicators = document.querySelectorAll('.typing-indicator');
                         typingIndicators.forEach(indicator => indicator.remove());
-                        
+
                         // Add error message
                         addMessage("Désolé, je rencontre des difficultés techniques. Veuillez réessayer plus tard.", 'bot');
                     });
             });
-            
+
             // Function to add a message to the chat
             function addMessage(text, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chat-message ${sender}`;
-                
+
                 if (sender === 'user') {
                     messageDiv.innerHTML = `
                         <div class="flex justify-end">
-                            <div class="bg-blue-600 text-white rounded-lg p-3 inline-block max-w-xs">
+                            <div class="inline-block p-3 max-w-xs text-white bg-blue-600 rounded-lg">
                                 <p>${text}</p>
                             </div>
                         </div>
                     `;
                 } else {
                     messageDiv.innerHTML = `
-                        <div class="bg-gray-100 rounded-lg p-3 inline-block max-w-xs">
+                        <div class="inline-block p-3 max-w-xs bg-gray-100 rounded-lg">
                             <p>${text}</p>
                         </div>
                     `;
                 }
-                
+
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         });
     </script>
-    
+
     <!-- Toastr JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
