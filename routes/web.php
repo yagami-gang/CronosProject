@@ -24,7 +24,7 @@ Route::get('/flights/search', [FlightController::class, 'search'])->name('flight
 Route::get('/flights/{flight}', [FlightController::class, 'show'])->name('flights.show');
 
 // Routes pour les destinations
-Route::get('/public/destinations', [DestinationController::class, 'index'])->name('public.destinations');
+Route::get('/public/destination', [DestinationController::class, 'index'])->name('public.destinations');
 Route::get('/public/destinations/{destination}', [DestinationController::class, 'show'])->name('destinations.show');
 
 // Routes protégées par authentification
@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/password', [ProfileController::class, 'passwordPost'])->name('profile.password.post');
     Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
     Route::get('/payment/return/{reservation}', [PaymentController::class, 'handleReturn'])->name('payment.return');
-    Route::get('/payment/cancel/{reservation}', [PaymentController::class, 'handleCancel'])->name('payment.cancel'); 
+    Route::get('/payment/cancel/{reservation}', [PaymentController::class, 'handleCancel'])->name('payment.cancel');
     // Webhook pour les notifications de paiement
         Route::post('/payment/webhook', [PaymentController::class, 'handleWebhook'])
         ->name('payment.webhook');
@@ -53,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    
+
     // Flights management
     Route::get('/flights', [AdminController::class, 'flightsList'])->name('admin.flights.index');
     Route::get('/flights/create', [AdminController::class, 'flightsCreate'])->name('admin.flights.create');
@@ -61,7 +61,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/flights/{flight}/edit', [AdminController::class, 'flightsEdit'])->name('admin.flights.edit');
     Route::put('/flights/{flight}', [AdminController::class, 'flightsUpdate'])->name('admin.flights.update');
     Route::delete('/flights/{flight}', [AdminController::class, 'flightsDestroy'])->name('admin.flights.destroy');
-    
+
     // Destinations management
     Route::get('/destinations', [AdminController::class, 'destinationsList'])->name('admin.destinations.index');
     Route::get('/destinations/create', [AdminController::class, 'destinationsCreate'])->name('admin.destinations.create');
@@ -69,13 +69,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/destinations/{destination}/edit', [AdminController::class, 'destinationsEdit'])->name('admin.destinations.edit');
     Route::put('/destinations/{destination}', [AdminController::class, 'destinationsUpdate'])->name('admin.destinations.update');
     Route::delete('/destinations/{destination}/delete', [AdminController::class, 'destinationsDestroy'])->name('admin.destinations.destroy');
-    
+
     // Reservations management
     Route::get('/reservations', [AdminController::class, 'reservationsList'])->name('admin.reservations.index');
     Route::get('/reservations/{reservation}', [AdminController::class, 'reservationsShow'])->name('admin.reservations.show');
     Route::put('/reservations/{reservation}', [AdminController::class, 'reservationsUpdate'])->name('admin.reservations.update');
     Route::delete('/reservations/{reservation}', [AdminController::class, 'reservationsDestroy'])->name('admin.reservations.destroy');
-    
+
     // Users management
     Route::get('/users', [AdminController::class, 'usersList'])->name('admin.users.index');
     Route::get('/users/{user}', [AdminController::class, 'usersShow'])->name('admin.users.show');
@@ -88,7 +88,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 Route::middleware(['auth', 'manager'])->prefix('manager')->group(function () {
     // Dashboard
     Route::get('/dashboard', [ManagerController::class, 'dashboard'])->name('manager.dashboard');
-    
+
     // Flights management
     Route::resource('flights', FlightController::class)->names([
         'index' => 'manager.flights.index',
@@ -99,7 +99,7 @@ Route::middleware(['auth', 'manager'])->prefix('manager')->group(function () {
         'update' => 'manager.flights.update',
         'destroy' => 'manager.flights.destroy',
     ]);
-    
+
     // Destinations management
     Route::resource('destinations', DestinationController::class)->names([
         'index' => 'manager.destinations.index',
@@ -110,7 +110,7 @@ Route::middleware(['auth', 'manager'])->prefix('manager')->group(function () {
         'update' => 'manager.destinations.update',
         'destroy' => 'manager.destinations.destroy',
     ]);
-    
+
     // Reservations management
     Route::resource('reservations', ManagerController::class)->names([
         'index' => 'manager.reservations.index',
