@@ -1,5 +1,8 @@
 
-<div id="chat-widget" class="fixed bottom-7 right-20  z-50">
+<!-- CSRF Token -->
+@csrf
+
+<div id="chat-widget" class="fixed bottom-7 right-20 z-50">
     <!-- Chat toggle button -->
     <button id="chat-toggle" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 flex items-center justify-center">
         <i class="fas fa-comments text-xl"></i>
@@ -43,3 +46,7 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ asset('js/chat.js') }}" defer></script>
+@endpush

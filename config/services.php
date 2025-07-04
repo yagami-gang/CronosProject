@@ -31,9 +31,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'monetbil' => [
-    'service_key' => env('MONETBIL_SERVICE_KEY'),
-    'secret_key' => env('MONETBIL_SECRET_KEY'),
-    'env' => env('MONETBIL_ENV', 'sandbox'),
-],
+        'service_key' => env('MONETBIL_SERVICE_KEY'),
+        'secret_key' => env('MONETBIL_SECRET_KEY'),
+        'env' => env('MONETBIL_ENV', 'sandbox'),
+    ],
+
+    'openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openai/gpt-3.5-turbo'),
+    ],
 
 ];

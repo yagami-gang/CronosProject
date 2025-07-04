@@ -27,6 +27,9 @@ Route::prefix('v1')->middleware(['cors'])->group(function () {
     // Endpoint de chat direct pour le widget de chat
     Route::post('/chat', [DialogflowController::class, 'chat']);
     
+    // Nouvel endpoint pour le chat avec Open Router
+    Route::post('/openrouter/chat', [\App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
+    
     // Gestion des requêtes OPTIONS pour CORS
     Route::options('/{any}', function () {
         return response('', 200)

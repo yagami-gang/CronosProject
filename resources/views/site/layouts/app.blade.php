@@ -16,8 +16,6 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
     
@@ -233,7 +231,79 @@
     <script src="{{ asset('js/axios.min.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     <script src="{{ asset('js/app.js') }}" type="module"></script>
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
+        // Attendre que le DOM soit complètement chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration de particles.js
+            if (typeof particlesJS !== 'undefined' && document.getElementById('particles-js')) {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { 
+                            value: 80,
+                            density: {
+                                enable: true,
+                                value_area: 800
+                            }
+                        },
+                        color: { 
+                            value: '#ffffff' 
+                        },
+                        opacity: { 
+                            value: 0.5,
+                            random: true
+                        },
+                        size: { 
+                            value: 3,
+                            random: true
+                        },
+                        line_linked: {
+                            enable: true,
+                            distance: 150,
+                            color: '#ffffff',
+                            opacity: 0.4,
+                            width: 1
+                        },
+                        move: {
+                            enable: true,
+                            speed: 2,
+                            direction: 'none',
+                            random: true,
+                            straight: false,
+                            out_mode: 'out',
+                            bounce: false
+                        }
+                    },
+                    interactivity: {
+                        detect_on: 'canvas',
+                        events: {
+                            onhover: {
+                                enable: true,
+                                mode: 'grab'
+                            },
+                            onclick: {
+                                enable: true,
+                                mode: 'push'
+                            },
+                            resize: true
+                        },
+                        modes: {
+                            grab: {
+                                distance: 140,
+                                line_linked: {
+                                    opacity: 1
+                                }
+                            },
+                            push: {
+                                particles_nb: 4
+                            }
+                        }
+                    },
+                    retina_detect: true
+                });
+            }
+        });
 
         // Mobile menu
         document.querySelector('.mobile-menu-button').addEventListener('click', function() {
@@ -244,28 +314,7 @@
             document.querySelector('.mobile-menu').classList.add('hidden');
         });
 
-        // Particles.js configuration
-        if (document.getElementById('particles-js')) {
-            particlesJS('particles-js', {
-                particles: {
-                    number: { value: 80 },
-                    color: { value: '#ffffff' },
-                    opacity: { value: 0.5 },
-                    size: { value: 3 },
-                    line_linked: {
-                        enable: true,
-                        distance: 150,
-                        color: '#ffffff',
-                        opacity: 0.4,
-                        width: 1
-                    },
-                    move: {
-                        enable: true,
-                        speed: 2
-                    }
-                }
-            });
-        }
+        // Configuration de particles.js déplacée en haut du script
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -314,26 +363,39 @@
                 chatMessages.appendChild(typingIndicator);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
                 
-                // Send message to server
-                axios.post('/api/v1/chat', { message: message })
-                    .then(function(response) {
-                        // Remove typing indicator
-                        const typingIndicators = document.querySelectorAll('.typing-indicator');
-                        typingIndicators.forEach(indicator => indicator.remove());
-                        
+                // Send message to Open Router API
+                fetch('/api/v1/openrouter/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    const typingIndicators = document.querySelectorAll('.typing-indicator');
+                    typingIndicators.forEach(indicator => indicator.remove());
+                    
+                    if (data.success) {
                         // Add bot response
-                        addMessage(response.data.message, 'bot');
-                    })
-                    .catch(function(error) {
-                        console.error('Error sending message:', error);
-                        
-                        // Remove typing indicator
-                        const typingIndicators = document.querySelectorAll('.typing-indicator');
-                        typingIndicators.forEach(indicator => indicator.remove());
-                        
-                        // Add error message
-                        addMessage("Désolé, je rencontre des difficultés techniques. Veuillez réessayer plus tard.", 'bot');
-                    });
+                        addMessage(data.response, 'bot');
+                    } else {
+                        throw new Error('Erreur de l\'API');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                    
+                    // Remove typing indicator
+                    const typingIndicators = document.querySelectorAll('.typing-indicator');
+                    typingIndicators.forEach(indicator => indicator.remove());
+                    
+                    // Add error message
+                    addMessage("Désolé, une erreur est survenue. Veuillez réessayer plus tard.", 'bot');
+                });
             });
             
             // Function to add a message to the chat
