@@ -20,13 +20,8 @@ class MonetbilService
         $data = array_merge([
             'service' => $this->serviceKey,
             'amount' => $data['amount'],
-            'currency' => $data['currency'] ?? 'XAF',
-            'item_ref' => $data['item_ref'],
-            'payment_ref' => $data['payment_ref'],
-            'country' => $data['country'] ?? 'CM',
-            'return_url' => $data['return_url'],
-            'notify_url' => $data['notify_url'],
-            'cancel_url' => $data['cancel_url'],
+            'currency' => 'XAF',
+            'country' => 'CM',
             'user' => $data['user'],
             'first_name' => $data['first_name'] ?? null,
             'last_name' => $data['last_name'] ?? null,
@@ -37,7 +32,7 @@ class MonetbilService
         $data['signature'] = $this->generateSignature($data);
         
         // Construire l'URL de paiement avec tous les paramètres
-        $paymentUrl = $this->baseUrl . $this->serviceKey;
+        $paymentUrl = $this->baseUrl . $this->serviceKey . '?' . http_build_query($data);
         
         return $paymentUrl;
     }
@@ -50,15 +45,20 @@ class MonetbilService
 
     protected function generateSignature($data)
     {
-        ksort($data);
-        $signature = '';
+        $cleanedData = [];
         foreach ($data as $key => $value) {
             if ($value !== null && $value !== '') {
-                $signature .= $key . '=' . $value . '&';
+                $cleanedData[$key] = $value;
             }
         }
-        $signature .= $this->secretKey;
-        return md5($signature);
+        ksort($cleanedData); // Tri alphabétique par clé
+
+        $queryString = http_build_query($cleanedData, '', '&', PHP_QUERY_RFC3986);
+        
+        // La signature est le MD5 de la query string + la clé secrète
+        $signatureString = $queryString . $this->secretKey;
+        
+        return md5($signatureString);
     }
 
     protected function makeRequest($endpoint, $data)

@@ -39,13 +39,11 @@ class PaymentController extends Controller
 
             // Initialiser le paiement Monetbil
             $paymentData = [
-                'amount' => $request->amount,
-                'currency' => 'XAF',
+                'amount' => (string) $request->amount, // Monetbil attend souvent des chaînes pour les montants
                 'item_ref' => 'RES-' . $reservation->id,
                 'payment_ref' => 'PAY-' . time() . '-' . $reservation->id,
-                'user' => auth()->id(),
+                'user' => (string) auth()->id(),
                 'email' => auth()->user()->email,
-                'country' => 'CM',
                 'return_url' => route('payment.return', ['reservation' => $reservation->id]),
                 'notify_url' => route('payment.webhook'),
                 'cancel_url' => route('payment.cancel', ['reservation' => $reservation->id]),
@@ -54,15 +52,14 @@ class PaymentController extends Controller
                 'item_name' => $request->item_name
             ];
 
-            // Récupérer l'URL de paiement
-            $paymentUrl = sprintf('%s?%s', $this->monetbilService->initiatePayment($paymentData), http_build_query($paymentData));
-            
-            // Retourner l'URL de paiement pour redirection
-            return response()->json([
-                'success' => true,
-                'reservation_id' => $reservation->id,
-                'payment_url' => $paymentUrl
-            ]);
+             // Obtenir le payload signé de notre service
+        $signedPaymentData = $this->monetbilService->initiatePayment($paymentData);
+        
+        // Retourner ce payload au format JSON
+        return response()->json([
+            'success' => true,
+            'payment_data' => $signedPaymentData // <- Le changement clé !
+        ]);
 
         } catch (\Exception $e) {
             \Log::error('Payment Initiation Error: ' . $e->getMessage());

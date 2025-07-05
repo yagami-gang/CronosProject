@@ -212,6 +212,7 @@
 
 <!-- Add AJAX Search Script -->
 @push('scripts')
+<script src="https://api.monetbil.cm/widget/v2/js/monetbil.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script> 
     function showReservationConfirmation(flightId, destination, price) {
@@ -275,7 +276,7 @@
             return { passengers, travelDate };
         }
     }).then((result) => {
-        if (result.isConfirmed) {
+    if (result.isConfirmed) {
             Swal.fire({
                 title: 'Traitement en cours...',
                 html: 'Veuillez patienter pendant que nous traitons votre réservation',
@@ -297,28 +298,28 @@
                     passengers_count: result.value.passengers,
                     travel_date: result.value.travelDate,
                     amount: price * result.value.passengers,
-                    item_name: `Réservation de vol pour ${result.value.passengers} personne(s)`
+                    item_name: `Réservation vol ${destination} pour ${result.value.passengers} passager(s)`
                 })
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.payment_url) {
-                    // Rediriger vers la page de confirmation
-                    Monetbil.init({
-                            url: data.payment_url
-                        });
-                    // Afficher un message à l'utilisateur
-                    // Swal.fire({
-                    //     title: 'Redirection en cours',
-                    //     text: 'Vous allez être redirigé vers la page de paiement sécurisée',
-                    //     icon: 'info',
-                    //     showConfirmButton: true,
-                    //     confirmButtonText: 'OK',
-                    //     allowOutsideClick: false
-                    // }).then(() => {
-                    //     // Ouvrir le widget dans un nouvel onglet
-                    //     //openMonetbilWidget(data.payment_url);
-                    // });
+                Swal.close(); // On ferme la popup "Traitement en cours"
+
+                if (data.success && data.payment_data) {
+                    // C'EST LA CORRECTION MAGIQUE !
+                    // On appelle le widget Monetbil avec les données reçues du serveur.
+                    const monetbilData = data.payment_data;
+
+                    // Ajout des callbacks pour gérer la suite
+                    monetbilData.onclose = function() {
+                        // L'utilisateur a fermé le widget sans payer
+                        console.log('Widget fermé par l\'utilisateur.');
+                        Swal.fire('Annulé', 'Le processus de paiement a été annulé.', 'info');
+                    };
+                    
+                    // On lance le widget
+                    Monetbil.pay(monetbilData); 
+                    
                 } else {
                     throw new Error(data.message || 'Erreur lors de l\'initialisation du paiement');
                 }
@@ -328,7 +329,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Erreur',
-                    text: `Une erreur est survenue lors de l'initialisation du paiement: ${error.message}`,
+                    text: `Une erreur est survenue : ${error.message}`,
                     confirmButtonText: 'OK'
                 });
             });
