@@ -38,6 +38,10 @@ class Flight extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+    public function villeDepart()
+    {
+        return $this->belongsTo(Destination::class);
+    }
 
     public function destination()
     {

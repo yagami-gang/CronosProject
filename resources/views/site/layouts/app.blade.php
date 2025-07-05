@@ -15,7 +15,7 @@
         @endif --}}
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
+
     <!-- Toastr CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
@@ -179,10 +179,10 @@
     </header>
 
     <!-- Mobile menu -->
-    <div id="mobile-menu" class="fixed inset-0 z-40 hidden w-full h-full bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-in-out">
-        <div class="absolute right-0 w-4/5 h-full max-w-sm overflow-y-auto bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl transform transition-transform duration-300 ease-in-out translate-x-full">
+    <div id="mobile-menu" class="hidden fixed inset-0 z-40 w-full h-full backdrop-blur-sm transition-opacity duration-300 ease-in-out bg-black/50">
+        <div class="overflow-y-auto absolute right-0 w-4/5 max-w-sm h-full bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl transition-transform duration-300 ease-in-out transform translate-x-full">
             <div class="flex flex-col h-full">
-                <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <div class="flex justify-between items-center p-4 border-b border-white/10">
                     <div class="flex items-center">
                         <i class="mr-2 text-blue-300 fas fa-plane"></i>
                         <span class="text-lg font-bold text-white">Menu</span>
@@ -192,32 +192,32 @@
                         <span class="sr-only">Fermer le menu</span>
                     </button>
                 </div>
-                
-                <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+
+                <nav class="overflow-y-auto flex-1 p-4 space-y-1">
                     <a href="{{ route('home') }}" class="flex items-center px-4 py-3 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                        <i class="w-6 mr-3 text-center text-blue-300 fas fa-home group-hover:text-white"></i>
+                        <i class="mr-3 w-6 text-center text-blue-300 fas fa-home group-hover:text-white"></i>
                         <span class="font-medium">Accueil</span>
                     </a>
 
                     <a href="{{ route('flights.search') }}" class="flex items-center px-4 py-3 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                        <i class="w-6 mr-3 text-center text-blue-300 fas fa-plane-departure group-hover:text-white"></i>
+                        <i class="mr-3 w-6 text-center text-blue-300 fas fa-plane-departure group-hover:text-white"></i>
                         <span class="font-medium">Vols</span>
                     </a>
 
                     <a href="#" class="flex items-center px-4 py-3 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                        <i class="w-6 mr-3 text-center text-blue-300 fas fa-map-marked-alt group-hover:text-white"></i>
+                        <i class="mr-3 w-6 text-center text-blue-300 fas fa-map-marked-alt group-hover:text-white"></i>
                         <span class="font-medium">Destinations</span>
                     </a>
 
                     <a href="#services" class="flex items-center px-4 py-3 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                        <i class="w-6 mr-3 text-center text-blue-300 fas fa-concierge-bell group-hover:text-white"></i>
+                        <i class="mr-3 w-6 text-center text-blue-300 fas fa-concierge-bell group-hover:text-white"></i>
                         <span class="font-medium">Services</span>
                     </a>
 
                     @auth
                         @if (Auth::user()->hasRole('gestionnaire'))
                             <a href="{{ route('manager.dashboard') }}" class="flex items-center px-4 py-3 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                                <i class="w-6 mr-3 text-center text-blue-300 fas fa-lock group-hover:text-white"></i>
+                                <i class="mr-3 w-6 text-center text-blue-300 fas fa-lock group-hover:text-white"></i>
                                 <span class="font-medium">Back Office</span>
                             </a>
                         @endif
@@ -230,7 +230,7 @@
                             <div class="relative mr-3">
                                 <img src="{{ Auth::user()->avatar ?? asset('images/default-avatar.png') }}"
                                      class="object-cover w-10 h-10 rounded-full border-2 border-white/20">
-                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-blue-900"></span>
+                                <span class="absolute right-0 bottom-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-blue-900"></span>
                             </div>
                             <div>
                                 <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
@@ -239,28 +239,28 @@
                         </div>
 
                         <a href="{{ route('profile.show') }}" class="flex items-center px-4 py-3 mb-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                            <i class="w-6 mr-3 text-center text-blue-300 fas fa-user-circle group-hover:text-white"></i>
+                            <i class="mr-3 w-6 text-center text-blue-300 fas fa-user-circle group-hover:text-white"></i>
                             <span class="font-medium">Mon profil</span>
                         </a>
 
                         <a href="{{ route('reservations.index') }}" class="flex items-center px-4 py-3 mb-2 text-white rounded-lg transition-all duration-300 hover:bg-white/10 group">
-                            <i class="w-6 mr-3 text-center text-blue-300 fas fa-ticket-alt group-hover:text-white"></i>
+                            <i class="mr-3 w-6 text-center text-blue-300 fas fa-ticket-alt group-hover:text-white"></i>
                             <span class="font-medium">Mes réservations</span>
                         </a>
 
                         <form method="POST" action="{{ route('logout') }}" class="mt-4">
                             @csrf
-                            <button type="submit" class="flex items-center w-full px-4 py-3 text-red-400 rounded-lg transition-colors hover:bg-red-500/10 group">
-                                <i class="w-6 mr-3 text-center fas fa-sign-out-alt"></i>
+                            <button type="submit" class="flex items-center px-4 py-3 w-full text-red-400 rounded-lg transition-colors hover:bg-red-500/10 group">
+                                <i class="mr-3 w-6 text-center fas fa-sign-out-alt"></i>
                                 <span class="font-medium">Déconnexion</span>
                             </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="flex items-center justify-center w-full px-4 py-3 mb-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        <a href="{{ route('login') }}" class="flex justify-center items-center px-4 py-3 mb-2 w-full text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700">
                             <i class="mr-2 fas fa-sign-in-alt"></i>
                             <span>Connexion</span>
                         </a>
-                        <a href="{{ route('register') }}" class="flex items-center justify-center w-full px-4 py-3 text-blue-900 bg-white rounded-lg hover:bg-gray-100 transition-colors">
+                        <a href="{{ route('register') }}" class="flex justify-center items-center px-4 py-3 w-full text-blue-900 bg-white rounded-lg transition-colors hover:bg-gray-100">
                             <i class="mr-2 fas fa-user-plus"></i>
                             <span class="font-medium">S'inscrire</span>
                         </a>
@@ -466,105 +466,113 @@
             const chatMessages = document.getElementById('chat-messages');
 
             // Toggle chat window
-            if (chatToggle) {
-                chatToggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    chatWindow.classList.toggle('hidden');
-                    chatToggle.classList.toggle('rotate-90');
-                });
-            }
+            chatToggle.addEventListener('click', function() {
+                chatWindow.classList.toggle('hidden');
+                chatToggle.classList.toggle('rotate-90');
+            });
 
             // Close chat window
-            if (chatClose) {
-                chatClose.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    chatWindow.classList.add('hidden');
-                    chatToggle.classList.remove('rotate-90');
-                });
-            }
+            chatClose.addEventListener('click', function() {
+                chatWindow.classList.add('hidden');
+                chatToggle.classList.remove('rotate-90');
+            });
 
             // Send message
-            if (chatForm) {
-                chatForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-                    const message = chatInput.value.trim();
-                    if (!message) return;
+                const message = chatInput.value.trim();
+                if (!message) return;
 
-                    // Add user message to chat
-                    addMessage(message, 'user');
-                    chatInput.value = '';
+                // Add user message to chat
+                addMessage(message, 'user');
+                chatInput.value = '';
 
-                    // Show typing indicator
-                    const typingIndicator = document.createElement('div');
-                    typingIndicator.className = 'chat-message bot typing-indicator';
-                    typingIndicator.innerHTML = `
-                        <div class="inline-block p-3 bg-gray-100 rounded-lg">
-                            <div class="flex space-x-2">
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                            </div>
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'chat-message bot typing-indicator';
+                typingIndicator.innerHTML = `
+                    <div class="inline-block p-3 bg-gray-100 rounded-lg">
+                        <div class="flex space-x-2">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
                         </div>
-                    `;
-                    chatMessages.appendChild(typingIndicator);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    
-                    // Send message to Open Router API
-                    fetch('/api/v1/openrouter/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        },
-                        body: JSON.stringify({ message: message })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Remove typing indicator
-                        const typingIndicators = document.querySelectorAll('.typing-indicator');
-                        typingIndicators.forEach(indicator => indicator.remove());
-                        
-                        if (data.success) {
-                            // Add bot response
-                            addMessage(data.response, 'bot');
-                        } else {
-                            throw new Error('Erreur de l\'API');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error sending message:', error);
-                        
-                        // Remove typing indicator
-                        const typingIndicators = document.querySelectorAll('.typing-indicator');
-                        typingIndicators.forEach(indicator => indicator.remove());
-                        
-                        // Add error message
-                        addMessage("Désolé, une erreur est survenue. Veuillez réessayer plus tard.", 'bot');
-                    });
+                    </div>
+                `;
+                chatMessages.appendChild(typingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Send message to Open Router API
+                fetch('/api/v1/openrouter/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    const typingIndicators = document.querySelectorAll('.typing-indicator');
+                    typingIndicators.forEach(indicator => indicator.remove());
+
+                    if (data.success) {
+                        // Add bot response
+                        addMessage(data.response, 'bot');
+                    } else {
+                        addMessage(`Erreur de l'API: ${data.message}`, 'bot');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+
+                    // Remove typing indicator
+                    const typingIndicators = document.querySelectorAll('.typing-indicator');
+                    typingIndicators.forEach(indicator => indicator.remove());
+
+                    // Add error message
+                    addMessage("Désolé, une erreur est survenue. Veuillez réessayer plus tard.", 'bot');
                 });
-            }
+            });
 
             // Function to add a message to the chat
             function addMessage(text, sender) {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${sender}`;
+                messageDiv.className = `mb-4 ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`;
+
+                // Formater le texte pour conserver les sauts de ligne
+                const formattedText = text.replace(/\n/g, '<br>');
 
                 if (sender === 'user') {
                     messageDiv.innerHTML = `
-                        <div class="flex justify-end">
-                            <div class="inline-block p-3 max-w-xs text-white bg-blue-600 rounded-lg">
-                                <p>${text}</p>
+                        <div class="flex items-end space-x-2 max-w-3xl">
+                            <div class="px-4 py-3 text-white bg-blue-600 rounded-2xl rounded-tr-none shadow-md">
+                                <div class="text-white prose prose-sm">${formattedText}</div>
+                                <div class="mt-1 text-right">
+                                    <span class="text-xs text-blue-100 opacity-75">${new Date().toLocaleTimeString([], {hour: '2-digit', 'minute':'2-digit'})}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-center items-center w-8 h-8 font-bold text-white bg-blue-500 rounded-full">
+            {{ Auth::check() ? substr(Auth::user()->name, 0, 1) : 'U' }}
                             </div>
                         </div>
                     `;
                 } else {
                     messageDiv.innerHTML = `
-                        <div class="inline-block p-3 max-w-xs bg-gray-100 rounded-lg">
-                            <p>${text}</p>
-                        </div>
-                    `;
+                        <div class="flex items-start space-x-2 max-w-3xl">
+                            <div class="flex justify-center items-center w-8 h-8 font-bold text-gray-600 bg-gray-300 rounded-full">
+                                AI
+                            </div>
+                            <div class="px-4 py-3 bg-gray-100 rounded-2xl rounded-tl-none shadow">
+                                <div class="text-gray-800 prose prose-sm">${formattedText}</div>
+                                <div class="mt-1 text-right">
+                                    <span class="text-xs text-gray-500">${new Date().toLocaleTimeString([], {hour: '2-digit', 'minute':'2-digit'})}</span>
+                                </div>
+                            </div>
+                        </div>`;
                 }
 
                 chatMessages.appendChild(messageDiv);
@@ -638,114 +646,6 @@
                 retina_detect: true
             });
         }
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatToggle = document.getElementById('chat-toggle');
-            const chatWindow = document.getElementById('chat-window');
-            const chatClose = document.getElementById('chat-close');
-            const chatForm = document.getElementById('chat-form');
-            const chatInput = document.getElementById('chat-input');
-            const chatMessages = document.getElementById('chat-messages');
-
-            // Toggle chat window
-            chatToggle.addEventListener('click', function() {
-                chatWindow.classList.toggle('hidden');
-                chatToggle.classList.toggle('rotate-90');
-            });
-
-            // Close chat window
-            chatClose.addEventListener('click', function() {
-                chatWindow.classList.add('hidden');
-                chatToggle.classList.remove('rotate-90');
-            });
-
-            // Send message
-            chatForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const message = chatInput.value.trim();
-                if (!message) return;
-
-                // Add user message to chat
-                addMessage(message, 'user');
-                chatInput.value = '';
-
-                // Show typing indicator
-                const typingIndicator = document.createElement('div');
-                typingIndicator.className = 'chat-message bot typing-indicator';
-                typingIndicator.innerHTML = `
-                    <div class="inline-block p-3 bg-gray-100 rounded-lg">
-                        <div class="flex space-x-2">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                        </div>
-                    </div>
-                `;
-                chatMessages.appendChild(typingIndicator);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Send message to Open Router API
-                fetch('/api/v1/openrouter/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    },
-                    body: JSON.stringify({ message: message })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Remove typing indicator
-                    const typingIndicators = document.querySelectorAll('.typing-indicator');
-                    typingIndicators.forEach(indicator => indicator.remove());
-                    
-                    if (data.success) {
-                        // Add bot response
-                        addMessage(data.response, 'bot');
-                    } else {
-                        throw new Error('Erreur de l\'API');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error sending message:', error);
-                    
-                    // Remove typing indicator
-                    const typingIndicators = document.querySelectorAll('.typing-indicator');
-                    typingIndicators.forEach(indicator => indicator.remove());
-                    
-                    // Add error message
-                    addMessage("Désolé, une erreur est survenue. Veuillez réessayer plus tard.", 'bot');
-                });
-            });
-
-            // Function to add a message to the chat
-            function addMessage(text, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${sender}`;
-
-                if (sender === 'user') {
-                    messageDiv.innerHTML = `
-                        <div class="flex justify-end">
-                            <div class="inline-block p-3 max-w-xs text-white bg-blue-600 rounded-lg">
-                                <p>${text}</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    messageDiv.innerHTML = `
-                        <div class="inline-block p-3 max-w-xs bg-gray-100 rounded-lg">
-                            <p>${text}</p>
-                        </div>
-                    `;
-                }
-
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        });
     </script>
 
     <!-- Toastr JS -->

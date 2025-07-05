@@ -14,32 +14,59 @@ class FlightService
      * @param array $searchParams
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function searchFlights($searchParams = [])
+    public function searchFlights(array $searchParams = [])
     {
         try {
-            $query = Flight::with(['destination', 'villeDepart'])
-                ->where('status', 'active');
+            Log::info('Paramètres de recherche reçus : ', $searchParams);
+
+            $query = Flight::with(['destination', 'villeDepart']);
+
+            // Retirer le filtre de statut pour voir tous les vols
+            // ->where('status', 'confirmé');
 
             if (!empty($searchParams['date'])) {
                 $date = Carbon::parse($searchParams['date'])->startOfDay();
                 $query->whereDate('departure_time', $date);
+                Log::info('Filtre date appliqué : ' . $date->format('Y-m-d'));
             }
 
             if (!empty($searchParams['destination_id'])) {
                 $query->where('destination_id', $searchParams['destination_id']);
+                Log::info('Filtre destination_id : ' . $searchParams['destination_id']);
             }
 
             if (!empty($searchParams['departure_city_id'])) {
                 $query->where('ville_depart_id', $searchParams['departure_city_id']);
+                Log::info('Filtre ville_depart_id : ' . $searchParams['departure_city_id']);
             }
 
             if (!empty($searchParams['user_id'])) {
                 $query->whereHas('reservations', function($q) use ($searchParams) {
                     $q->where('user_id', $searchParams['user_id']);
                 });
+                Log::info('Filtre user_id : ' . $searchParams['user_id']);
             }
 
-            return $query->orderBy('departure_time')->get();
+            $sql = $query->toSql();
+            $bindings = $query->getBindings();
+            $results = $query->orderBy('departure_time')->get();
+
+            Log::info('Requête SQL : ' . $sql);
+            Log::info('Paramètres de liaison : ', $bindings);
+            Log::info('Nombre de résultats : ' . $results->count());
+
+            if ($results->isEmpty()) {
+                // Vérifier s'il y a des vols dans la base de données
+                $totalFlights = Flight::count();
+                Log::info('Aucun vol trouvé. Total des vols en base : ' . $totalFlights);
+
+                if ($totalFlights > 0) {
+                    // Voir un exemple de vol existant
+                    $sampleFlight = Flight::first();
+                    Log::info('Exemple de vol existant : ', $sampleFlight->toArray());
+                }
+            }
+            return $results;
         } catch (\Exception $e) {
             Log::error('Erreur lors de la recherche de vols: ' . $e->getMessage());
             return collect();
@@ -59,32 +86,22 @@ class FlightService
         }
 
         $result = "Voici les vols disponibles :\n\n";
-        
+
         foreach ($flights as $flight) {
-            $departureCity = $flight->villeDepart->nom ?? 'Inconnu';
-            $destinationCity = $flight->destination->nom ?? 'Inconnu';
-            
-            $result .= sprintf(
-                "Vol %s :\n" .
-                "- Départ : %s\n" .
-                "- Destination : %s\n" .
-                "- Date et heure de départ : %s\n" .
-                "- Date et heure d'arrivée : %s\n" .
-                "- Prix : %s €\n" .
-                "- Sièges disponibles : %d/%d\n" .
-                "- Durée du séjour : %s\n" .
-                "- Note : %s/5\n\n",
-                $flight->flight_number,
-                $departureCity,
-                $destinationCity,
-                $flight->departure_time->format('d/m/Y H:i'),
-                $flight->arrival_time->format('d/m/Y H:i'),
-                number_format($flight->price, 2, ',', ' '),
-                $flight->available_seats,
-                $flight->total_seats,
-                $flight->duree_sejour ?? 'Non spécifiée',
-                $flight->note ? number_format($flight->note, 1) : 'Non noté'
-            );
+            $departureCity = $flight->villeDepart->ville ?? 'Inconnu';
+            $destinationCity = $flight->destination->ville ?? 'Inconnu';
+
+            $result .= "✈️ *Vol {$flight->flight_number}*\n";
+            $result .= "\n";
+            $result .= "📍 *Départ*: {$departureCity}\n";
+            $result .= "🏁 *Destination*: {$destinationCity}\n\n";
+            $result .= "🕒 *Départ*: {$flight->departure_time->format('d/m/Y à H\hi')}\n";
+            $result .= "🕓 *Arrivée*: {$flight->arrival_time->format('d/m/Y à H\hi')}\n\n";
+            $result .= "💺 *Disponibilité*: {$flight->available_seats}/{$flight->total_seats} sièges\n";
+            $result .= "💰 *Prix*: " . number_format($flight->price, 2, ',', ' ') . " Fcfa\n";
+            $result .= "⏱️ *Durée du séjour*: " . ($flight->duree_sejour ?? 'Non spécifiée') . "\n";
+            $result .= "⭐ *Note*: " . ($flight->note ? number_format($flight->note, 1) . "/5" : 'Non noté') . "\n";
+            $result .= "\n" . str_repeat("-", 30) . "\n\n";
         }
 
         return $result;
@@ -111,7 +128,7 @@ class FlightService
     public function checkAvailability($flightId, $seatsRequested = 1)
     {
         $flight = Flight::find($flightId);
-        
+
         if (!$flight) {
             return false;
         }
